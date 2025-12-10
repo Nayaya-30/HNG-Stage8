@@ -4,30 +4,23 @@ import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-6">
-      <div className="space-y-2 text-center">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-gold">
-          Authentication
+    <main className="min-h-screen bg-[#040816] flex items-center justify-center px-4">
+      <div className="max-w-md w-full rounded-3xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,1)]">
+        <p className="text-xs tracking-[0.25em] uppercase text-slate-400 mb-3">
+          Create account
         </p>
-        <h1 className="text-3xl font-semibold text-white">Create account</h1>
-        <p className="text-sm text-slate-300">
-          Use the form below to create your OnboardX account.
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <h1 className="text-xl font-semibold text-slate-50 mb-4">
+          Join OnboardX
+        </h1>
         <SignUp
           appearance={{
-            elements: {
-              card: "bg-transparent shadow-none border-0",
-              headerTitle: "text-white",
-              headerSubtitle: "text-slate-300",
-              formButtonPrimary:
-                "bg-brand-gold text-brand-navy hover:bg-yellow-400",
+            variables: {
+              colorPrimary: "#fbbf24",
+              colorBackground: "#020617",
             },
           }}
         />
       </div>
-    </div>
+    </main>
   );
 }

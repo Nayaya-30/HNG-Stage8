@@ -1,34 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  ClipboardDocumentIcon,
-  CheckIcon,
-  CodeBracketIcon,
-  DocumentTextIcon,
-} from "@heroicons/react/24/outline";
 
 export default function DocsPage() {
-  const [copied, setCopied] = useState<string | null>(null);
   const [tourId, setTourId] = useState("tour_abc123");
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(id);
+    setCopied(key);
     setTimeout(() => setCopied(null), 2000);
   };
 
@@ -85,9 +65,9 @@ export default {
 
   return (
     <main className="min-h-screen bg-[#040816] text-slate-50 px-6 md:px-10 lg:px-16 py-12">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="space-y-2">
+      <div className="max-w-5xl mx-auto space-y-10">
+        {/* HEADER */}
+        <section className="space-y-2">
           <p className="text-xs font-semibold tracking-[0.25em] text-slate-400 uppercase">
             Documentation
           </p>
@@ -98,414 +78,278 @@ export default {
             Learn how to embed the OnboardX tour widget into your product — using a
             simple script tag or framework components.
           </p>
-        </div>
+        </section>
 
-        {/* Quick Start */}
-        <Card className="border-slate-800 bg-slate-900/60">
-          <CardHeader>
-            <CardTitle>Quick Start</CardTitle>
+        {/* QUICK START */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold">Quick Start</h2>
             <p className="text-sm text-slate-400">
-              The fastest way to add tours to your website
+              The fastest way to add tours to your website.
             </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-200">
-                Your Tour ID
-              </label>
-              <Input
-                value={tourId}
-                onChange={(e) => setTourId(e.target.value)}
-                placeholder="Enter your tour ID"
-                className="bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500"
-              />
-              <p className="text-xs text-slate-500">
-                Find your tour ID in the OnboardX dashboard under each tour’s settings.
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-200">
+              Your Tour ID
+            </label>
+            <input
+              value={tourId}
+              onChange={(e) => setTourId(e.target.value)}
+              placeholder="Enter your tour ID"
+              className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
+            />
+            <p className="text-xs text-slate-500">
+              Find your tour ID in the OnboardX dashboard under each tour&apos;s settings.
+            </p>
+          </div>
+
+          <div className="relative">
+            <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
+              <code>{scriptCode}</code>
+            </pre>
+            <button
+              onClick={() => copy(scriptCode, "script")}
+              className="absolute top-3 right-3 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
+            >
+              {copied === "script" ? "Copied!" : "Copy"}
+            </button>
+          </div>
+
+          <div className="bg-sky-950/60 border border-sky-500/40 rounded-lg p-4 flex gap-3">
+            <span className="text-sky-400 text-lg">💡</span>
+            <div className="text-sm">
+              <p className="font-medium text-sky-100">Pro Tip</p>
+              <p className="text-sky-200/80">
+                Place this script just before the closing &lt;/body&gt; tag for the best
+                performance.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* FRAMEWORK INTEGRATION */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold">Framework Integration</h2>
+            <p className="text-sm text-slate-400">
+              Install using your preferred frontend stack.
+            </p>
+          </div>
+
+          {/* React */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-500/15 text-[11px] text-sky-300">
+                  R
+                </span>
+                React
+              </h3>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              1. Install the package
+            </p>
+            <div className="relative">
+              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
+                <code>{npmInstall}</code>
+              </pre>
+              <button
+                onClick={() => copy(npmInstall, "npm")}
+                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
+              >
+                {copied === "npm" ? "Copied!" : "Copy"}
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              2. Import and use the component
+            </p>
+            <div className="relative">
+              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
+                <code>{reactCode}</code>
+              </pre>
+              <button
+                onClick={() => copy(reactCode, "react")}
+                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
+              >
+                {copied === "react" ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </div>
+
+          {/* Vue */}
+          <div className="space-y-3 pt-4 border-t border-slate-800">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 text-[11px] text-emerald-300">
+                V
+              </span>
+              Vue
+            </h3>
+
+            <p className="text-xs text-slate-400">
+              Use the same NPM package, then drop this component setup:
+            </p>
 
             <div className="relative">
-              <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                <code>{scriptCode}</code>
+              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
+                <code>{vueCode}</code>
               </pre>
-              <Button
-                size="sm"
-                variant="outline"
-                className="absolute top-2 right-2 border-slate-600 text-slate-100 hover:bg-slate-800"
-                onClick={() => copyToClipboard(scriptCode, "script")}
+              <button
+                onClick={() => copy(vueCode, "vue")}
+                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
               >
-                {copied === "script" ? (
-                  <>
-                    <CheckIcon className="h-4 w-4 mr-1" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
-                    Copy
-                  </>
-                )}
-              </Button>
+                {copied === "vue" ? "Copied!" : "Copy"}
+              </button>
             </div>
+          </div>
 
-            <div className="bg-sky-950/60 border border-sky-500/40 rounded-lg p-4">
-              <div className="flex gap-2">
-                <svg
-                  className="w-5 h-5 text-sky-400 shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div className="text-sm">
-                  <p className="font-medium text-sky-100">Pro Tip</p>
-                  <p className="text-sky-200/80">
-                    Place this script just before the closing &lt;/body&gt; tag for optimal
-                    performance.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Framework Integration */}
-        <Card className="border-slate-800 bg-slate-900/60">
-          <CardHeader>
-            <CardTitle>Framework Integration</CardTitle>
-            <p className="text-sm text-slate-400">
-              Install using your preferred framework
+          {/* Angular note */}
+          <div className="pt-4 border-t border-slate-800 text-sm text-slate-400">
+            <p className="font-medium text-slate-200 mb-1">Angular</p>
+            <p>
+              Angular support is coming soon. For now, use the plain script tag method
+              in the Quick Start section.
             </p>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="react">
-              <TabsList className="grid w-full grid-cols-3 bg-slate-900 border border-slate-800">
-                <TabsTrigger value="react">React</TabsTrigger>
-                <TabsTrigger value="vue">Vue</TabsTrigger>
-                <TabsTrigger value="angular">Angular</TabsTrigger>
-              </TabsList>
+          </div>
+        </section>
 
-              {/* React */}
-              <TabsContent value="react" className="space-y-4 mt-4">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">
-                    1. Install the package
-                  </h4>
-                  <div className="relative">
-                    <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                      <code>{npmInstall}</code>
-                    </pre>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute top-2 right-2 border-slate-600 text-slate-100 hover:bg-slate-800"
-                      onClick={() => copyToClipboard(npmInstall, "npm")}
-                    >
-                      {copied === "npm" ? (
-                        <>
-                          <CheckIcon className="h-4 w-4 mr-1" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium mb-2">
-                    2. Import and use the component
-                  </h4>
-                  <div className="relative">
-                    <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                      <code>{reactCode}</code>
-                    </pre>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute top-2 right-2 border-slate-600 text-slate-100 hover:bg-slate-800"
-                      onClick={() => copyToClipboard(reactCode, "react")}
-                    >
-                      {copied === "react" ? (
-                        <>
-                          <CheckIcon className="h-4 w-4 mr-1" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Vue */}
-              <TabsContent value="vue" className="space-y-4 mt-4">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">
-                    1. Install the package
-                  </h4>
-                  <div className="relative">
-                    <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                      <code>{npmInstall}</code>
-                    </pre>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute top-2 right-2 border-slate-600 text-slate-100 hover:bg-slate-800"
-                      onClick={() => copyToClipboard(npmInstall, "npm-vue")}
-                    >
-                      {copied === "npm-vue" ? (
-                        <>
-                          <CheckIcon className="h-4 w-4 mr-1" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium mb-2">
-                    2. Import and use the component
-                  </h4>
-                  <div className="relative">
-                    <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                      <code>{vueCode}</code>
-                    </pre>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute top-2 right-2 border-slate-600 text-slate-100 hover:bg-slate-800"
-                      onClick={() => copyToClipboard(vueCode, "vue")}
-                    >
-                      {copied === "vue" ? (
-                        <>
-                          <CheckIcon className="h-4 w-4 mr-1" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardDocumentIcon className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Angular */}
-              <TabsContent value="angular" className="space-y-4 mt-4">
-                <div className="text-center py-8 text-slate-400">
-                  <CodeBracketIcon className="h-12 w-12 mx-auto mb-2 opacity-60" />
-                  <p>Angular integration coming soon.</p>
-                  <p className="text-sm mt-1">
-                    For now, use the vanilla JavaScript script tag method.
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Configuration Options */}
-        <Card className="border-slate-800 bg-slate-900/60">
-          <CardHeader>
-            <CardTitle>Configuration Options</CardTitle>
+        {/* CONFIG OPTIONS */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold">Configuration Options</h2>
             <p className="text-sm text-slate-400">
-              Customize the widget behavior
+              Customize how the OnboardX widget behaves.
             </p>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-300">
-                    <th className="text-left py-3 px-4 font-medium">
-                      Option
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium">Type</th>
-                    <th className="text-left py-3 px-4 font-medium">
-                      Default
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium">
-                      Description
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="text-slate-300">
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">tourId</td>
-                    <td className="py-3 px-4">string</td>
-                    <td className="py-3 px-4 font-mono text-xs">required</td>
-                    <td className="py-3 px-4">
-                      Unique identifier for your tour
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">apiKey</td>
-                    <td className="py-3 px-4">string</td>
-                    <td className="py-3 px-4 font-mono text-xs">required</td>
-                    <td className="py-3 px-4">
-                      Your API key from the dashboard
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">autoStart</td>
-                    <td className="py-3 px-4">boolean</td>
-                    <td className="py-3 px-4 font-mono text-xs">false</td>
-                    <td className="py-3 px-4">
-                      Automatically start tour on page load
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">showAvatar</td>
-                    <td className="py-3 px-4">boolean</td>
-                    <td className="py-3 px-4 font-mono text-xs">true</td>
-                    <td className="py-3 px-4">
-                      Show 3D animated avatar in the widget
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">position</td>
-                    <td className="py-3 px-4">string</td>
-                    <td className="py-3 px-4 font-mono text-xs">
-                      &apos;bottom-right&apos;
-                    </td>
-                    <td className="py-3 px-4">
-                      Widget position on screen
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">
-                      primaryColor
-                    </td>
-                    <td className="py-3 px-4">string</td>
-                    <td className="py-3 px-4 font-mono text-xs">
-                      &apos;#4f46e5&apos;
-                    </td>
-                    <td className="py-3 px-4">
-                      Primary brand color used in the widget
-                    </td>
-                  </tr>
-                  <tr className="border-b border-slate-800">
-                    <td className="py-3 px-4 font-mono text-xs">
-                      onComplete
-                    </td>
-                    <td className="py-3 px-4">function</td>
-                    <td className="py-3 px-4 font-mono text-xs">null</td>
-                    <td className="py-3 px-4">
-                      Callback fired when tour is completed
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 px-4 font-mono text-xs">onSkip</td>
-                    <td className="py-3 px-4">function</td>
-                    <td className="py-3 px-4 font-mono text-xs">null</td>
-                    <td className="py-3 px-4">
-                      Callback fired when tour is skipped
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Next Steps */}
-        <Card className="border-slate-800 bg-slate-900/60 mb-10">
-          <CardHeader>
-            <CardTitle>Next Steps</CardTitle>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-300">
+                  <th className="text-left py-3 px-4 font-medium">Option</th>
+                  <th className="text-left py-3 px-4 font-medium">Type</th>
+                  <th className="text-left py-3 px-4 font-medium">Default</th>
+                  <th className="text-left py-3 px-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-300">
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">tourId</td>
+                  <td className="py-3 px-4">string</td>
+                  <td className="py-3 px-4 font-mono text-xs">required</td>
+                  <td className="py-3 px-4">Unique identifier for your tour.</td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">apiKey</td>
+                  <td className="py-3 px-4">string</td>
+                  <td className="py-3 px-4 font-mono text-xs">required</td>
+                  <td className="py-3 px-4">Your API key from the dashboard.</td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">autoStart</td>
+                  <td className="py-3 px-4">boolean</td>
+                  <td className="py-3 px-4 font-mono text-xs">false</td>
+                  <td className="py-3 px-4">
+                    Automatically start the tour when the page loads.
+                  </td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">showAvatar</td>
+                  <td className="py-3 px-4">boolean</td>
+                  <td className="py-3 px-4 font-mono text-xs">true</td>
+                  <td className="py-3 px-4">
+                    Show a small avatar / guide illustration in the widget.
+                  </td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">position</td>
+                  <td className="py-3 px-4">string</td>
+                  <td className="py-3 px-4 font-mono text-xs">
+                    &apos;bottom-right&apos;
+                  </td>
+                  <td className="py-3 px-4">Where the launcher bubble appears.</td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">primaryColor</td>
+                  <td className="py-3 px-4">string</td>
+                  <td className="py-3 px-4 font-mono text-xs">
+                    &apos;#4f46e5&apos;
+                  </td>
+                  <td className="py-3 px-4">Brand color used in the widget UI.</td>
+                </tr>
+                <tr className="border-b border-slate-800">
+                  <td className="py-3 px-4 font-mono text-xs">onComplete</td>
+                  <td className="py-3 px-4">function</td>
+                  <td className="py-3 px-4 font-mono text-xs">null</td>
+                  <td className="py-3 px-4">
+                    Callback fired when a user completes the tour.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-4 font-mono text-xs">onSkip</td>
+                  <td className="py-3 px-4">function</td>
+                  <td className="py-3 px-4 font-mono text-xs">null</td>
+                  <td className="py-3 px-4">
+                    Callback fired when a user skips the tour.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* NEXT STEPS */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4 mb-10">
+          <div>
+            <h2 className="text-lg font-semibold">Next Steps</h2>
             <p className="text-sm text-slate-400">
-              Where to go after installation
+              Where to go after completing your setup.
             </p>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border border-slate-800 rounded-lg p-4 hover:border-amber-300/70 transition-colors">
-                <DocumentTextIcon className="h-8 w-8 text-amber-300 mb-2" />
-                <h3 className="font-medium mb-1 text-slate-100">
-                  View Documentation
-                </h3>
-                <p className="text-sm text-slate-400 mb-3">
-                  Explore advanced features, events and API reference.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-slate-700"
-                >
-                  Read Docs
-                </Button>
-              </div>
+          </div>
 
-              <div className="border border-slate-800 rounded-lg p-4 hover:border-sky-400/70 transition-colors">
-                <CodeBracketIcon className="h-8 w-8 text-sky-400 mb-2" />
-                <h3 className="font-medium mb-1 text-slate-100">
-                  Try Demo
-                </h3>
-                <p className="text-sm text-slate-400 mb-3">
-                  See the widget in action with live examples.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-slate-700"
-                >
-                  View Demo
-                </Button>
-              </div>
-
-              <div className="border border-slate-800 rounded-lg p-4 hover:border-emerald-400/70 transition-colors">
-                <svg
-                  className="h-8 w-8 text-emerald-400 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-                <h3 className="font-medium mb-1 text-slate-100">
-                  Get Support
-                </h3>
-                <p className="text-sm text-slate-400 mb-3">
-                  Need help? Reach out to the OnboardX team.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-slate-700"
-                >
-                  Contact Us
-                </Button>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="border border-slate-800 rounded-lg p-4 hover:border-amber-300/70 transition-colors">
+              <p className="text-lg mb-2">📚</p>
+              <h3 className="font-medium mb-1 text-slate-100">
+                View Documentation
+              </h3>
+              <p className="text-slate-400 mb-3">
+                Explore advanced features, events and API reference.
+              </p>
+              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
+                Read Docs
+              </button>
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="border border-slate-800 rounded-lg p-4 hover:border-sky-400/70 transition-colors">
+              <p className="text-lg mb-2">🧪</p>
+              <h3 className="font-medium mb-1 text-slate-100">
+                Try Demo
+              </h3>
+              <p className="text-slate-400 mb-3">
+                See the widget in action with a live product tour.
+              </p>
+              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
+                View Demo
+              </button>
+            </div>
+
+            <div className="border border-slate-800 rounded-lg p-4 hover:border-emerald-400/70 transition-colors">
+              <p className="text-lg mb-2">🛟</p>
+              <h3 className="font-medium mb-1 text-slate-100">
+                Get Support
+              </h3>
+              <p className="text-slate-400 mb-3">
+                Need help? Reach out to the OnboardX team.
+              </p>
+              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
+                Contact Us
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

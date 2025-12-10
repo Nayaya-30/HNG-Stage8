@@ -1,12 +1,30 @@
 import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { mutation, query } from '../../../../convex/_generated/server';
+import type {
+	MutationCtx,
+	QueryCtx,
+} from '../../../../convex/_generated/server';
+import { Id } from '../../../../convex/_generated/dataModel';
+
+// Shared Types
+type TourType = 'ecommerce' | 'saas' | 'custom';
+type TourStatus = 'draft' | 'active';
+type StepPosition = 'top' | 'bottom' | 'left' | 'right';
+
+interface TourStep {
+	id: string;
+	title: string;
+	content: string;
+	position: StepPosition;
+	targetElement?: string;
+}
 
 // Get all tours for a user
 export const listTours = query({
 	args: {
 		ownerId: v.string(),
 	},
-	handler: async (ctx, args) => {
+	handler: async (ctx: QueryCtx, args: { ownerId: string }) => {
 		return await ctx.db
 			.query('tours')
 			.withIndex('by_owner', (q) => q.eq('ownerId', args.ownerId))
@@ -19,7 +37,7 @@ export const getTour = query({
 	args: {
 		id: v.id('tours'),
 	},
-	handler: async (ctx, args) => {
+	handler: async (ctx: QueryCtx, args: { id: Id<'tours'> }) => {
 		return await ctx.db.get(args.id);
 	},
 });
@@ -50,7 +68,16 @@ export const createTour = mutation({
 		),
 		ownerId: v.string(),
 	},
-	handler: async (ctx, args) => {
+	handler: async (
+		ctx: MutationCtx,
+		args: {
+			name: string;
+			type: TourType;
+			status: TourStatus;
+			steps: TourStep[];
+			ownerId: string;
+		}
+	) => {
 		const now = Date.now();
 		const tourId = await ctx.db.insert('tours', {
 			name: args.name,
@@ -92,7 +119,16 @@ export const updateTour = mutation({
 			})
 		),
 	},
-	handler: async (ctx, args) => {
+	handler: async (
+		ctx: MutationCtx,
+		args: {
+			id: Id<'tours'>;
+			name: string;
+			type: TourType;
+			status: TourStatus;
+			steps: TourStep[];
+		}
+	) => {
 		const now = Date.now();
 		await ctx.db.patch(args.id, {
 			name: args.name,
@@ -111,8 +147,9 @@ export const deleteTour = mutation({
 	args: {
 		id: v.id('tours'),
 	},
-	handler: async (ctx, args) => {
+	handler: async (ctx: MutationCtx, args: { id: Id<'tours'> }) => {
 		await ctx.db.delete(args.id);
 		return args.id;
 	},
 });
+

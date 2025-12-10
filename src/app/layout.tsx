@@ -4,7 +4,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 
 
 const inter = Inter({
@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
        <ClerkProvider>
       <body className="min-h-screen bg-brand-navy text-slate-100 font-[var(--font-inter)]">
-        <Navbar />
+        {/* <Navbar /> */}
         <main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col px-4 py-10">
           {children}
         </main>

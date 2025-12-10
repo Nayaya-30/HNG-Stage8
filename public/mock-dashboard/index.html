@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Dashboard - TourMaster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-3xl font-bold text-indigo-600">TourMaster</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="px-2 py-1 text-xs font-semibold bg-gray-200 rounded">Mock Dashboard</span>
+                        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Mock Dashboard Pages</h2>
+                    <p class="text-gray-600">Preview of the dashboard UI with mock data</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Dashboard Card -->
+                    <div class="card bg-white rounded-lg shadow overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-indigo-100 text-indigo-600 mb-4">
+                                <i class="fas fa-home text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Dashboard</h3>
+                            <p class="text-gray-600 mb-4">Overview of tours and analytics</p>
+                            <a href="dashboard.html" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                                View Dashboard
+                                <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tours Card -->
+                    <div class="card bg-white rounded-lg shadow overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-indigo-100 text-indigo-600 mb-4">
+                                <i class="fas fa-list text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Tours</h3>
+                            <p class="text-gray-600 mb-4">Manage all your product tours</p>
+                            <a href="tours.html" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                                View Tours
+                                <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Card -->
+                    <div class="card bg-white rounded-lg shadow overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-indigo-100 text-indigo-600 mb-4">
+                                <i class="fas fa-chart-bar text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">Analytics</h3>
+                            <p class="text-gray-600 mb-4">Tour performance and metrics</p>
+                            <a href="analytics.html" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                                View Analytics
+                                <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-16 bg-white rounded-lg shadow p-8">
+                    <div class="text-center">
+                        <h3 class="text-xl font-semibold mb-4">About This Mock Dashboard</h3>
+                        <p class="text-gray-600 max-w-3xl mx-auto mb-6">
+                            This is a static HTML mockup of the TourMaster dashboard with pure mock data. 
+                            It demonstrates how the dashboard would look without connecting to any database or state management system.
+                            All data is hardcoded for visualization purposes only.
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>No database connections</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>No state management</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>Pure HTML/CSS/JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t">
+            <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                <p class="text-center text-gray-500 text-sm">
+                    &copy; 2023 TourMaster. This is a mock dashboard for demonstration purposes.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

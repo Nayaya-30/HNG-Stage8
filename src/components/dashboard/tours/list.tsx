@@ -14,27 +14,18 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
-import { Id } from '../../../../convex/_generated/dataModel';
+import type { Id, Doc } from '../../../../convex/_generated/dataModel';
+import { useOwnerId } from '@/hooks/use-user';
 
-interface Tour {
-  _id: string;
-  name: string;
-  type: 'ecommerce' | 'saas' | 'custom';
-  status: 'draft' | 'active';
-  steps: Array<{
-    id: string;
-    title: string;
-    content: string;
-    position: 'top' | 'bottom' | 'left' | 'right';
-    targetElement?: string;
-  }>;
-  ownerId: string;
-  createdAt: number;
-  updatedAt: number;
-}
+type UITour = Doc<'tours'> & {
+  status?: 'draft' | 'active';
+  type?: 'ecommerce' | 'saas' | 'custom';
+  steps?: unknown[];
+};
 
 export function TourList() {
-  const tours = useQuery(api.tours.listTours, { ownerId: 'user_123' });
+  const ownerId = useOwnerId();
+  const tours = useQuery(api.tours.listTours, { ownerId });
   const deleteTourMutation = useMutation(api.tours.deleteTour);
 
   const deleteTour = async (id: string) => {
@@ -63,7 +54,7 @@ export function TourList() {
           {tours.length === 0 ? (
             <p className="text-center text-gray-500 py-4">No tours found. Create one to get started.</p>
           ) : (
-            tours.map((tour: Tour) => (
+            tours.map((tour: UITour) => (
               <div
                 key={tour._id}
                 className="flex items-center justify-between rounded-lg border p-4 hover:bg-gray-50"
@@ -75,7 +66,7 @@ export function TourList() {
                   <div>
                     <h3 className="font-medium">{tour.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{tour.steps.length} steps</span>
+                      <span>{tour.steps?.length || 0} steps</span>
                       <span>•</span>
                       <span>{format(tour.createdAt, 'MMM d, yyyy')}</span>
                       <span>•</span>

@@ -17,29 +17,19 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
-import { Id } from '../../../../convex/_generated/dataModel';
+import type { Id, Doc } from '../../../../convex/_generated/dataModel';
+import { useOwnerId } from '@/hooks/use-user';
 
-interface Tour {
-  _id: string;
-  name: string;
-  type: 'ecommerce' | 'saas' | 'custom';
-  status: 'draft' | 'active';
-  steps: Array<{
-    id: string;
-    title: string;
-    content: string;
-    position: 'top' | 'bottom' | 'left' | 'right';
-    targetElement?: string;
-  }>;
-  ownerId: string;
-  createdAt: number;
-  updatedAt: number;
-}
+type UITour = Doc<'tours'> & {
+  status?: 'draft' | 'active';
+  type?: 'ecommerce' | 'saas' | 'custom';
+  steps?: unknown[];
+};
 
 export default function ToursPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  // Use a hardcoded ownerId for now as auth is handled by partner
-  const tours = useQuery(api.tours.listTours, { ownerId: 'user_123' });
+  const ownerId = useOwnerId();
+  const tours = useQuery(api.tours.listTours, { ownerId });
   const deleteTourMutation = useMutation(api.tours.deleteTour);
 
   const handleSearch = (term: string) => {
@@ -52,7 +42,7 @@ export default function ToursPage() {
     }
   };
 
-  const filteredTours = tours?.filter((tour: Tour) =>
+  const filteredTours = tours?.filter((tour: UITour) =>
     tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tour.type.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
@@ -113,7 +103,7 @@ export default function ToursPage() {
                 )}
               </div>
             ) : (
-              filteredTours.map((tour: Tour) => (
+              filteredTours.map((tour: UITour) => (
                 <div
                   key={tour._id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-lg border p-4 hover:bg-gray-50"
@@ -126,7 +116,7 @@ export default function ToursPage() {
                       <h3 className="font-medium">{tour.name}</h3>
                       <div className="flex flex-wrap items-center gap-2 mt-1">
                         <span className="text-sm text-gray-500">
-                          {tour.steps.length} steps
+                          {tour.steps?.length || 0} steps
                         </span>
                         <span className="text-gray-300">•</span>
                         <span className="text-sm text-gray-500">

@@ -141,13 +141,3 @@ export const deleteStep = mutation({
     }
   },
 });
-
-export const listTours = query({
-  args: { ownerId: v.id('users') },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query('tours')
-      .withIndex('by_userId', (q) => q.eq('userId', args.ownerId))
-      .collect();
-  },
-});

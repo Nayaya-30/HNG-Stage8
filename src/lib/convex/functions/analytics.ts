@@ -1,5 +1,4 @@
-import { mutation, query } from './_generated/server';
-import { Id } from './_generated/dataModel';
+import { mutation, query } from '../../../../convex/_generated/server';
 import { v } from 'convex/values';
 
 // Record when a user starts a tour
@@ -155,19 +154,18 @@ export const getRecentActivity = query({
 		const recentAnalytics = await ctx.db
 			.query('tourAnalytics')
 			.order('desc')
-			.take(10);
+			.take(5);
 
 		const activities = await Promise.all(
 			recentAnalytics.map(async (record) => {
 				let tourName = 'Unknown Tour';
-                try {
-                    const tour = await ctx.db.get(record.tourId as Id<'tours'>);
-                    if (tour && 'name' in tour) {
-                        tourName = tour.name as string;
-                    }
-                } catch (e) {
-                    console.error('Failed to fetch tour', e);
-                }
+				try {
+					// Assume tourId is a valid ID
+					const tour = await ctx.db.get(record.tourId as Id<'tours'>);
+					if (tour) tourName = tour.name;
+				} catch (e) {
+					console.error('Failed to fetch tour', e);
+				}
 
 				return {
 					id: record._id,
@@ -182,3 +180,4 @@ export const getRecentActivity = query({
 		return activities;
 	},
 });
+

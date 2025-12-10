@@ -310,3 +310,4 @@ This project is part of the HNG Stage 8 assessment.
 ---
 
 **Built with ❤️ using Next.js, React, Convex, and Three.js**
+# Meget

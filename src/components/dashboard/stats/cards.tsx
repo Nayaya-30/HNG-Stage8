@@ -3,14 +3,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useOwnerId } from '@/hooks/use-user';
+import type { Doc } from '../../../../convex/_generated/dataModel';
+type UITour = Doc<'tours'> & {
+  status?: 'active' | 'draft';
+  steps?: unknown[];
+  type?: 'ecommerce' | 'saas' | 'custom';
+};
 
 export function StatsCards() {
-  const tours = useQuery(api.tours.listTours, { ownerId: 'user_123' });
+  const ownerId = useOwnerId();
+  const tours = useQuery(api.tours.listTours, { ownerId });
+  const tourList = tours as UITour[] | undefined;
 
-  const totalTours = tours?.length || 0;
-  const activeTours = tours?.filter(t => t.status === 'active').length || 0;
-  const draftTours = tours?.filter(t => t.status === 'draft').length || 0;
-  const totalSteps = tours?.reduce((acc, tour) => acc + tour.steps.length, 0) || 0;
+  const totalTours = tourList?.length || 0;
+  const activeTours = tourList?.filter(t => t.status === 'active').length || 0;
+  const draftTours = tourList?.filter(t => t.status === 'draft').length || 0;
+  const totalSteps = tourList?.reduce((acc, tour) => acc + (tour.steps?.length || 0), 0) || 0;
 
   const stats = [
     {

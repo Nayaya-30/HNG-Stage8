@@ -116,3 +116,38 @@ export const deleteTour = mutation({
 		return args.id;
 	},
 });
+
+export const deleteStep = mutation({
+  args: { id: v.id("steps") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const step = await ctx.db.get(args.id);
+    if (!step) throw new Error("Not found");
+
+    const tour = await ctx.db.get(step.tourId);
+    if (!tour || tour.userId !== identity.subject) throw new Error("Unauthorized");
+
+    await ctx.db.delete(args.id);
+
+    // Reorder remaining steps
+    const remainingSteps = await ctx.db
+      .query("steps")
+      .withIndex("by_tour_order", (q) => q.eq("tourId", step.tourId))
+      .collect();
+    for (let i = 0; i < remainingSteps.length; i++) {
+      await ctx.db.patch(remainingSteps[i]._id, { order: i + 1 });
+    }
+  },
+});
+
+export const listTours = query({
+  args: { ownerId: v.id('users') },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('tours')
+      .withIndex('by_userId', (q) => q.eq('userId', args.ownerId))
+      .collect();
+  },
+});

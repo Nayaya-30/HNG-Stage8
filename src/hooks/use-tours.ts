@@ -1,27 +1,32 @@
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
-import { Id } from '../../../convex/_generated/dataModel';
+import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 
+// The input is a string which represents the owner/user ID
 export const useTours = (ownerId: string) => {
-  const tours = useQuery(api.tours.listTours, { ownerId });
-  
-  const createTour = useMutation(api.tours.createTour);
-  const updateTour = useMutation(api.tours.updateTour);
-  const deleteTour = useMutation(api.tours.deleteTour);
-  
-  return {
-    tours,
-    createTour,
-    updateTour,
-    deleteTour,
-  };
+    const userId = ownerId; 
+    
+	const tours = useQuery(api.tours.listTours, { userId: userId as Id<'users'> });
+
+	const createTour = useMutation(api.tours.createTour);
+	const updateTour = useMutation(api.tours.updateTour);
+	const deleteTour = useMutation(api.tours.deleteTour);
+
+	return {
+		tours,
+		createTour,
+		updateTour,
+		deleteTour,
+	};
 };
 
 export const useTour = (tourId: Id<'tours'> | null) => {
-  const tour = useQuery(
-    tourId ? api.tours.getTour : null,
-    tourId ? { id: tourId } : undefined
-  );
-  
-  return tour;
+	// FIX: Pass the function reference directly (no conditional logic)
+	const tour = useQuery(
+		api.tours.getTour,
+        // FIX: Rely on the second argument to pass 'skip' if tourId is null
+		tourId ? { id: tourId } : 'skip'
+	);
+
+	return tour;
 };

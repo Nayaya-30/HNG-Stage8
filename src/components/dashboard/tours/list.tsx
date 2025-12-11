@@ -1,3 +1,4 @@
+// ./src/components/dashboard/tours/list.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,18 +15,34 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+// FIX 1: Import Id type for casting
 import type { Id, Doc } from '../../../../convex/_generated/dataModel';
 import { useOwnerId } from '@/hooks/use-user';
 
-type UITour = Doc<'tours'> & {
-  status?: 'draft' | 'active';
-  type?: 'ecommerce' | 'saas' | 'custom';
-  steps?: unknown[];
+// NOTE: Update UITour based on what is actually present on the Doc
+type BaseTour = Doc<'tours'> & {
+    totalSteps: number; // Assuming this is available
+    isActive: boolean; // Assuming this determines status
+    tourType: 'ecommerce' | 'saas' | 'custom'; // Assuming 'type' is stored as 'tourType'
 };
 
+type UITour = BaseTour & {
+  status: 'draft' | 'active';
+  stepsCount: number;
+  type: 'ecommerce' | 'saas' | 'custom';
+};
+
+
 export function TourList() {
-  const ownerId = useOwnerId();
-  const tours = useQuery(api.tours.listTours, { ownerId });
+  // FIX 2: Rename variable to match the Convex argument name
+  const userId = useOwnerId();
+  
+  // FIX 3: Use 'userId' for the argument and apply the "skip" pattern
+  const rawTours = useQuery(
+    api.tours.listTours, 
+    userId ? { userId: userId as Id<'users'> } : "skip"
+  );
+  
   const deleteTourMutation = useMutation(api.tours.deleteTour);
 
   const deleteTour = async (id: string) => {
@@ -34,20 +51,30 @@ export function TourList() {
     }
   };
 
-  if (tours === undefined) {
+  if (rawTours === undefined) {
     return <div className="p-4 text-center">Loading...</div>;
   }
+  
+  // FIX 4: Map raw data to UITour structure for safe rendering
+  const tours: UITour[] = rawTours.map((tour: BaseTour) => ({
+      ...tour,
+      status: tour.isActive ? 'active' : 'draft',
+      stepsCount: tour.totalSteps || 0, // Rely on totalSteps
+      type: tour.tourType, // Map tourType to type
+  }));
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Your Tours</CardTitle>
-        <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          <Link href="/dashboard/tours/new">
-            Create New Tour
-          </Link>
-        </Button>
+        <Link href="/dashboard/tours/new" passHref>
+          <Button asChild>
+            <div className="flex items-center">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Create New Tour
+            </div>
+          </Button>
+        </Link>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -66,9 +93,11 @@ export function TourList() {
                   <div>
                     <h3 className="font-medium">{tour.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{tour.steps?.length || 0} steps</span>
+                      {/* FIX 5: Use stepsCount instead of tour.steps?.length */}
+                      <span>{tour.stepsCount} steps</span>
                       <span>•</span>
-                      <span>{format(tour.createdAt, 'MMM d, yyyy')}</span>
+                      {/* FIX 6: Use _creationTime since createdAt is not on the base Doc */}
+                      <span>{format(tour._creationTime, 'MMM d, yyyy')}</span>
                       <span>•</span>
                       <Badge
                         variant={tour.status === 'active' ? 'default' : 'secondary'}

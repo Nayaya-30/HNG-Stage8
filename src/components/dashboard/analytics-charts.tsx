@@ -14,38 +14,30 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import {
-  ArrowsPointingOutIcon
-} from '@heroicons/react/24/outline';
-
-const completionData = [
-  { date: 'Dec 1', completions: 45 },
-  { date: 'Dec 2', completions: 52 },
-  { date: 'Dec 3', completions: 48 },
-  { date: 'Dec 4', completions: 60 },
-  { date: 'Dec 5', completions: 55 },
-  { date: 'Dec 6', completions: 65 },
-  { date: 'Dec 7', completions: 70 },
-];
-
-const tourPerformance = [
-  { name: 'E-commerce Walkthrough', value: 85 },
-  { name: 'SaaS Onboarding', value: 72 },
-  { name: 'Feature Intro', value: 68 },
-  { name: 'Checkout Guide', value: 90 },
-];
-
-const stepCompletion = [
-  { name: 'Step 1', completion: 95 },
-  { name: 'Step 2', completion: 88 },
-  { name: 'Step 3', completion: 75 },
-  { name: 'Step 4', completion: 65 },
-  { name: 'Step 5', completion: 55 },
-];
+import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { useOwnerId } from '@/hooks/use-user';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 const COLORS = ['#4f46e5', '#60a5fa', '#34d399', '#fbbf24'];
 
 export function AnalyticsCharts() {
+  const ownerId = useOwnerId();
+  const summary = useQuery(api.analytics.getOwnerAnalyticsSummary, { ownerId });
+  const firstTourId = summary?.perTour[0]?.tourId ? String(summary.perTour[0].tourId) : null;
+  const firstTourAnalytics = useQuery(
+    firstTourId ? api.analytics.getTourAnalytics : null,
+    firstTourId ? { tourId: firstTourId } : undefined
+  );
+
+  if (summary === undefined) {
+    return <div className="p-4 text-center">Loading analytics...</div>;
+  }
+
+  const completionData = summary.completionsByDay;
+  const tourPerformance = summary.perTour.map((t) => ({ name: t.name, value: Math.round(t.completionRate) }));
+  const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: s.stepId, completion: Math.round(s.completionRate) }));
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>

@@ -1,4 +1,5 @@
 import { mutation } from './_generated/server';
+import type { MutationCtx } from './_generated/server';
 import { v } from 'convex/values';
 
 export const signUp = mutation({
@@ -6,7 +7,7 @@ export const signUp = mutation({
     name: v.string(),
     email: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: MutationCtx, args: { name: string; email: string }) => {
     const existing = await ctx.db
       .query('users')
       .withIndex('by_email', (q) => q.eq('email', args.email))
@@ -30,7 +31,7 @@ export const signIn = mutation({
   args: {
     email: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: MutationCtx, args: { email: string }) => {
     const users = await ctx.db
       .query('users')
       .withIndex('by_email', (q) => q.eq('email', args.email))
@@ -48,7 +49,7 @@ export const requestPasswordReset = mutation({
   args: {
     email: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: MutationCtx, args: { email: string }) => {
     const existing = await ctx.db
       .query('users')
       .withIndex('by_email', (q) => q.eq('email', args.email))

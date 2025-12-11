@@ -1,5 +1,6 @@
 import { mutation, query } from './_generated/server';
-import { Id } from './_generated/dataModel';
+import type { MutationCtx, QueryCtx } from './_generated/server';
+import { Id, Doc } from './_generated/dataModel';
 import { v } from 'convex/values';
 
 // Record when a user starts a tour
@@ -8,7 +9,7 @@ export const startTour = mutation({
 		tourId: v.string(),
 		userId: v.string(),
 	},
-	handler: async (ctx, args) => {
+    handler: async (ctx: MutationCtx, args: { tourId: string; userId: string }) => {
 		const now = Date.now();
 		const analyticsId = await ctx.db.insert('tourAnalytics', {
 			tourId: args.tourId,
@@ -27,7 +28,7 @@ export const completeStep = mutation({
 		analyticsId: v.id('tourAnalytics'),
 		stepId: v.string(),
 	},
-	handler: async (ctx, args) => {
+    handler: async (ctx: MutationCtx, args: { analyticsId: Id<'tourAnalytics'>; stepId: string }) => {
 		const analyticsRecord = await ctx.db.get(args.analyticsId);
 		if (!analyticsRecord) {
 			throw new Error('Analytics record not found');
@@ -69,7 +70,7 @@ export const completeTour = mutation({
 	args: {
 		analyticsId: v.id('tourAnalytics'),
 	},
-	handler: async (ctx, args) => {
+    handler: async (ctx: MutationCtx, args: { analyticsId: Id<'tourAnalytics'> }) => {
 		const now = Date.now();
 		await ctx.db.patch(args.analyticsId, {
 			completedAt: now,
@@ -84,7 +85,7 @@ export const abandonTour = mutation({
 	args: {
 		analyticsId: v.id('tourAnalytics'),
 	},
-	handler: async (ctx, args) => {
+    handler: async (ctx: MutationCtx, args: { analyticsId: Id<'tourAnalytics'> }) => {
 		const now = Date.now();
 		await ctx.db.patch(args.analyticsId, {
 			abandonedAt: now,
@@ -99,7 +100,7 @@ export const getTourAnalytics = query({
 	args: {
 		tourId: v.string(),
 	},
-	handler: async (ctx, args) => {
+    handler: async (ctx: QueryCtx, args: { tourId: string }) => {
 		const analytics = await ctx.db
 			.query('tourAnalytics')
 			.withIndex('by_tour', (q) => q.eq('tourId', args.tourId))
@@ -151,7 +152,7 @@ export const getTourAnalytics = query({
 // Get recent activity across all tours
 export const getRecentActivity = query({
 	args: {},
-	handler: async (ctx) => {
+    handler: async (ctx: QueryCtx) => {
 		const recentAnalytics = await ctx.db
 			.query('tourAnalytics')
 			.order('desc')
@@ -162,8 +163,8 @@ export const getRecentActivity = query({
 				let tourName = 'Unknown Tour';
                 try {
                     const tour = await ctx.db.get(record.tourId as Id<'tours'>);
-                    if (tour && 'name' in tour) {
-                        tourName = tour.name as string;
+                    if (tour && typeof tour.name === 'string') {
+                        tourName = tour.name;
                     }
                 } catch (e) {
                     console.error('Failed to fetch tour', e);
@@ -179,6 +180,59 @@ export const getRecentActivity = query({
 			})
 		);
 
-		return activities;
-	},
+        return activities;
+    },
+});
+
+// Owner-wide analytics summary for charts
+export const getOwnerAnalyticsSummary = query({
+    args: { ownerId: v.string() },
+    handler: async (ctx: QueryCtx, args: { ownerId: string }) => {
+        const tours: Doc<'tours'>[] = await ctx.db
+            .query('tours')
+            .withIndex('by_owner', (q) => q.eq('ownerId', args.ownerId))
+            .collect();
+
+        const perTour = [] as Array<{
+            tourId: Id<'tours'>;
+            name: string;
+            completionRate: number;
+            stepsCount: number;
+        }>;
+
+        for (const tour of tours) {
+            const analytics: Doc<'tourAnalytics'>[] = await ctx.db
+                .query('tourAnalytics')
+                .withIndex('by_tour', (q) => q.eq('tourId', tour._id as unknown as string))
+                .collect();
+            const totalStarted = analytics.length;
+            const totalCompleted = analytics.filter((a) => !!a.completedAt).length;
+            const completionRate = totalStarted > 0 ? (totalCompleted / totalStarted) * 100 : 0;
+            perTour.push({
+                tourId: tour._id as Id<'tours'>,
+                name: tour.name as string,
+                completionRate,
+                stepsCount: Array.isArray(tour.steps) ? tour.steps.length : 0,
+            });
+        }
+
+        // Recent activity by day (started events)
+        const recent: Doc<'tourAnalytics'>[] = await ctx.db
+            .query('tourAnalytics')
+            .order('desc')
+            .take(50);
+        const byDay = new Map<string, number>();
+        for (const rec of recent) {
+            const d = new Date(rec.startedAt);
+            const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+            byDay.set(key, (byDay.get(key) || 0) + 1);
+        }
+
+        const completionsByDay = Array.from(byDay.entries())
+            .slice(0, 7)
+            .reverse()
+            .map(([date, count]) => ({ date, completions: count }));
+
+        return { perTour, completionsByDay };
+    },
 });

@@ -13,6 +13,8 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const isDashboard = pathname?.startsWith("/dashboard");
+  if (isDashboard) return null;
 
   return (
     <header className="border-b border-white/5 bg-[#020617]/80 backdrop-blur-md">

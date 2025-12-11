@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import type { Id, Doc } from '../../../convex/_generated/dataModel';
 import { TourWidget } from './tour-widget';
 
 interface TourStep {
@@ -19,83 +22,23 @@ interface TourData {
 }
 
 export function TourManager() {
-  const [tourData, setTourData] = useState<TourData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [showTour, setShowTour] = useState(false);
+  const tourId: string | null = typeof window !== 'undefined'
+    ? (document.getElementById('tour-master-script')?.getAttribute('data-tour-id')
+       || new URLSearchParams(window.location.search).get('tourId'))
+    : null;
 
-  // Extract tour ID from script tag or URL parameter
+  const tour = useQuery(
+    tourId ? api.tours.getTour : null,
+    tourId ? { id: tourId as Id<'tours'> } : undefined
+  ) as Doc<'tours'> | undefined | null;
+
   useEffect(() => {
-    const loadTour = async () => {
-      try {
-        // In a real implementation, this would fetch from your API
-        // For demo purposes, we'll use mock data
-        
-        // Get tour ID from data attribute in script tag
-        const scriptTag = document.getElementById('tour-master-script');
-        const tourId = scriptTag?.getAttribute('data-tour-id') || 
-                      new URLSearchParams(window.location.search).get('tourId') ||
-                      'default';
-        
-        // Mock tour data - replace with actual API call
-        const mockTourData: TourData = {
-          id: tourId,
-          name: tourId === 'ecommerce' ? 'E-commerce Product Walkthrough' : 
-                tourId === 'saas' ? 'SaaS Onboarding Flow' : 
-                'Custom Feature Introduction',
-          type: tourId === 'ecommerce' ? 'ecommerce' : 
-                tourId === 'saas' ? 'saas' : 
-                'custom',
-          steps: [
-            {
-              id: 'step_1',
-              title: 'Welcome!',
-              content: 'Thanks for checking out our tour widget. This is a demonstration of how the tour system works.',
-              position: 'bottom'
-            },
-            {
-              id: 'step_2',
-              title: 'Interactive Elements',
-              content: 'Notice how this tooltip points to specific elements on the page. You can click "Next" to continue.',
-              position: 'bottom',
-              targetElement: 'body'
-            },
-            {
-              id: 'step_3',
-              title: 'Navigation Controls',
-              content: 'Use these buttons to navigate through the tour steps.',
-              position: 'bottom',
-              targetElement: '.navigation-example'
-            },
-            {
-              id: 'step_4',
-              title: 'Completion Tracking',
-              content: 'When users finish the tour, completion events are sent to your analytics system.',
-              position: 'bottom'
-            },
-            {
-              id: 'step_5',
-              title: 'Ready to Implement?',
-              content: 'This widget can be easily embedded in any website with a simple script tag.',
-              position: 'bottom'
-            }
-          ]
-        };
-        
-        setTourData(mockTourData);
-        setIsLoading(false);
-        
-        // Auto-start tour after a short delay
-        setTimeout(() => {
-          setShowTour(true);
-        }, 1000);
-      } catch (error) {
-        console.error('Failed to load tour:', error);
-        setIsLoading(false);
-      }
-    };
-    
-    loadTour();
-  }, []);
+    if (tour && !showTour) {
+      const id = setTimeout(() => setShowTour(true), 500);
+      return () => clearTimeout(id);
+    }
+  }, [tour, showTour]);
   
   const handleTourComplete = () => {
     console.log('Tour completed');
@@ -109,7 +52,7 @@ export function TourManager() {
     setShowTour(false);
   };
   
-  if (isLoading) {
+  if (tour === undefined) {
     return (
       <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-white p-4 shadow-lg">
         <div className="flex items-center">
@@ -120,7 +63,7 @@ export function TourManager() {
     );
   }
   
-  if (!tourData) {
+  if (!tour) {
     return (
       <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-white p-4 shadow-lg">
         <div className="text-sm text-gray-600">Tour not found</div>
@@ -132,8 +75,8 @@ export function TourManager() {
     <>
       {showTour && (
         <TourWidget
-          tourId={tourData.id}
-          steps={tourData.steps}
+          tourId={String(tour._id)}
+          steps={(tour.steps || []) as TourStep[]}
           onComplete={handleTourComplete}
           onClose={handleTourClose}
         />

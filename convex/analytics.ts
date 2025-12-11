@@ -1,72 +1,184 @@
-import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from './_generated/server';
+import { Id } from './_generated/dataModel';
+import { v } from 'convex/values';
 
-// Public mutation for widget to track events (no auth required, but validate tourId)
-export const trackEvent = mutation({
-  args: {
-    tourId: v.id("tours"),
-    stepId: v.string(),
-    eventType: v.union(v.literal("start"), v.literal("complete"), v.literal("skip"), v.literal("resume")),
-    sessionId: v.string(),
-    userAgent: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // Validate tour exists (public, no auth)
-    const tour = await ctx.db.get(args.tourId);
-    if (!tour) throw new Error("Tour not found");
+// Record when a user starts a tour
+export const startTour = mutation({
+	args: {
+		tourId: v.string(),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const now = Date.now();
+		const analyticsId = await ctx.db.insert('tourAnalytics', {
+			tourId: args.tourId,
+			userId: args.userId,
+			startedAt: now,
+			stepProgress: [],
+		});
 
-    return await ctx.db.insert("analytics", {
-      ...args,
-      timestamp: Date.now(),
-    });
-  },
+		return analyticsId;
+	},
 });
 
-// Get analytics for a tour (aggregated)
-export const getAnalytics = query({
-  args: { tourId: v.id("tours") },
-  handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+// Record when a user completes a step
+export const completeStep = mutation({
+	args: {
+		analyticsId: v.id('tourAnalytics'),
+		stepId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const analyticsRecord = await ctx.db.get(args.analyticsId);
+		if (!analyticsRecord) {
+			throw new Error('Analytics record not found');
+		}
 
-    const tour = await ctx.db.get(args.tourId);
-    if (!tour || tour.userId !== identity.subject) throw new Error("Not found");
+		const now = Date.now();
+		const updatedProgress = [...analyticsRecord.stepProgress];
 
-    const events = await ctx.db
-      .query("analytics")
-      .withIndex("by_tour", (q) => q.eq("tourId", args.tourId))
-      .collect();
+		// Find if step already exists
+		const stepIndex = updatedProgress.findIndex(
+			(step) => step.stepId === args.stepId
+		);
 
-    // Aggregate: completion rate, skips per step, etc.
-    const steps = await ctx.db
-      .query("steps")
-      .withIndex("by_tour", (q) => q.eq("tourId", args.tourId))
-      .collect();
+		if (stepIndex >= 0) {
+			// Update existing step
+			updatedProgress[stepIndex] = {
+				...updatedProgress[stepIndex],
+				completedAt: now,
+			};
+		} else {
+			// Add new step
+			updatedProgress.push({
+				stepId: args.stepId,
+				startedAt: now,
+				completedAt: now,
+			});
+		}
 
-    const uniqueSessions = new Set(events.map((e) => e.sessionId)).size;
+		await ctx.db.patch(args.analyticsId, {
+			stepProgress: updatedProgress,
+		});
 
-    const aggregates = steps.map((step) => {
-      const stepEvents = events.filter((e) => e.stepId === step.stepId);
-      const starts = stepEvents.filter((e) => e.eventType === "start").length;
-      const completes = stepEvents.filter((e) => e.eventType === "complete").length;
-      const skips = stepEvents.filter((e) => e.eventType === "skip").length;
-      const resumes = stepEvents.filter((e) => e.eventType === "resume").length;
+		return args.analyticsId;
+	},
+});
 
-      return {
-        stepId: step.stepId,
-        title: step.title,
-        starts,
-        completes,
-        skips,
-        resumes,
-        completionRate: starts > 0 ? (completes / starts) * 100 : 0,
-      };
-    });
+// Record when a user completes a tour
+export const completeTour = mutation({
+	args: {
+		analyticsId: v.id('tourAnalytics'),
+	},
+	handler: async (ctx, args) => {
+		const now = Date.now();
+		await ctx.db.patch(args.analyticsId, {
+			completedAt: now,
+		});
 
-    const overallCompletion = uniqueSessions > 0 
-      ? (events.filter((e) => e.eventType === "complete" && e.stepId === steps[steps.length - 1]?.stepId).length / uniqueSessions) * 100 
-      : 0;
+		return args.analyticsId;
+	},
+});
 
-    return { aggregates, overallCompletion, totalSessions: uniqueSessions, totalEvents: events.length };
-  },
+// Record when a user abandons a tour
+export const abandonTour = mutation({
+	args: {
+		analyticsId: v.id('tourAnalytics'),
+	},
+	handler: async (ctx, args) => {
+		const now = Date.now();
+		await ctx.db.patch(args.analyticsId, {
+			abandonedAt: now,
+		});
+
+		return args.analyticsId;
+	},
+});
+
+// Get analytics for a specific tour
+export const getTourAnalytics = query({
+	args: {
+		tourId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const analytics = await ctx.db
+			.query('tourAnalytics')
+			.withIndex('by_tour', (q) => q.eq('tourId', args.tourId))
+			.collect();
+
+		// Calculate completion rate
+		const totalStarted = analytics.length;
+		const totalCompleted = analytics.filter((a) => a.completedAt).length;
+		const completionRate =
+			totalStarted > 0 ? (totalCompleted / totalStarted) * 100 : 0;
+
+		// Calculate step completion rates
+		const stepCompletion: Record<
+			string,
+			{ started: number; completed: number }
+		> = {};
+
+		for (const record of analytics) {
+			for (const step of record.stepProgress) {
+				if (!stepCompletion[step.stepId]) {
+					stepCompletion[step.stepId] = { started: 0, completed: 0 };
+				}
+				stepCompletion[step.stepId].started += 1;
+				if (step.completedAt) {
+					stepCompletion[step.stepId].completed += 1;
+				}
+			}
+		}
+
+		const stepCompletionRates = Object.entries(stepCompletion).map(
+			([stepId, data]) => ({
+				stepId,
+				completionRate:
+					data.started > 0
+						? (data.completed / data.started) * 100
+						: 0,
+			})
+		);
+
+		return {
+			totalStarted,
+			totalCompleted,
+			completionRate,
+			stepCompletionRates,
+		};
+	},
+});
+
+// Get recent activity across all tours
+export const getRecentActivity = query({
+	args: {},
+	handler: async (ctx) => {
+		const recentAnalytics = await ctx.db
+			.query('tourAnalytics')
+			.order('desc')
+			.take(10);
+
+		const activities = await Promise.all(
+			recentAnalytics.map(async (record) => {
+				let tourName = 'Unknown Tour';
+                try {
+                    const tour = await ctx.db.get(record.tourId as Id<'tours'>);
+                    if (tour && 'name' in tour) {
+                        tourName = tour.name as string;
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch tour', e);
+                }
+
+				return {
+					id: record._id,
+					user: record.userId || 'Anonymous',
+					action: record.completedAt ? 'completed' : 'started',
+					target: tourName,
+					timestamp: record._creationTime,
+				};
+			})
+		);
+
+		return activities;
+	},
 });

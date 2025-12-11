@@ -28,7 +28,7 @@ export default function TourBuilderPage() {
   const copyEmbedCode = () => {
     // This would be the actual tour ID in a real app
     const tourId = 'tour_example';
-    const embedCode = `<script src="https://your-domain.com/tours/${tourId}.js" data-tour-id="${tourId}"></script>`;
+    const embedCode = `<script src="https://guidetour.vercel.app/tours/${tourId}.js" data-tour-id="${tourId}"></script>`;
     navigator.clipboard.writeText(embedCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

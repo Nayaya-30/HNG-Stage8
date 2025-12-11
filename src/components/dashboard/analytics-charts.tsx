@@ -1,3 +1,4 @@
+// ./src/components/dashboard/analytics-charts.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,12 +19,21 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { useOwnerId } from '@/hooks/use-user';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+// FIX 1: Import Id type for casting
+import type { Id } from '../../../convex/_generated/dataModel'; 
 
 const COLORS = ['#4f46e5', '#60a5fa', '#34d399', '#fbbf24'];
 
 export function AnalyticsCharts() {
-  const ownerId = useOwnerId();
-  const summary = useQuery(api.analytics.getOwnerAnalyticsSummary, { ownerId });
+  // FIX 2: Rename ownerId to userId
+  const userId = useOwnerId();
+  
+  // FIX 3: Pass userId instead of ownerId, and cast it to Id<'users'>
+  const summary = useQuery(
+    api.analytics.getOwnerAnalyticsSummary, 
+    userId ? { userId: userId as Id<'users'> } : undefined // Pass arguments only if userId exists
+  );
+  
   const firstTourId = summary?.perTour[0]?.tourId ? String(summary.perTour[0].tourId) : null;
   const firstTourAnalytics = useQuery(
     firstTourId ? api.analytics.getTourAnalytics : null,
@@ -36,7 +46,8 @@ export function AnalyticsCharts() {
 
   const completionData = summary.completionsByDay;
   const tourPerformance = summary.perTour.map((t) => ({ name: t.name, value: Math.round(t.completionRate) }));
-  const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: s.stepId, completion: Math.round(s.completionRate) }));
+  // NOTE: If tourId is an Id<"tours"> in the Convex database, you might need to convert it to string here:
+  const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: String(s.stepId), completion: Math.round(s.completionRate) }));
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -281,7 +281,7 @@ export default function Home() {
                 Simple embed snippet
               </p>
               <div className="rounded-xl bg-[#020617] border border-slate-800/80 p-4 text-[11px] font-mono text-slate-300 overflow-x-auto">
-                <p className="text-slate-500 mb-2">// Add this near the end of your &lt;body&gt;</p>
+                <p className="text-slate-500 mb-2">Add this in the head of your script before the &lt;body&gt;</p>
                 <pre className="whitespace-pre">
 {`<script src="https://your-widget-url.vercel.app/onboardx.js" async></script>
 <script>

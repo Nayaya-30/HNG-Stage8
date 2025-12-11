@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { nanoid } from "nanoid";
 
 // Create or update user from auth provider
@@ -10,7 +12,10 @@ export const upsertUser = mutation({
     name: v.string(),
     avatarUrl: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: { authId: string; email: string; name: string; avatarUrl?: string }
+  ) => {
     // Check if user exists
     const existingUser = await ctx.db
       .query("users")
@@ -58,7 +63,7 @@ export const upsertUser = mutation({
 // Get user by auth ID
 export const getUserByAuthId = query({
   args: { authId: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx: QueryCtx, args: { authId: string }) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_authId", (q) => q.eq("authId", args.authId))
@@ -71,7 +76,7 @@ export const getUserByAuthId = query({
 // Get user by API key (for widget authentication)
 export const getUserByApiKey = query({
   args: { apiKey: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx: QueryCtx, args: { apiKey: string }) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_apiKey", (q) => q.eq("apiKey", args.apiKey))
@@ -88,7 +93,10 @@ export const updateUserProfile = mutation({
     name: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: { userId: Id<'users'>; name?: string; avatarUrl?: string }
+  ) => {
     const { userId, ...updates } = args;
     
     await ctx.db.patch(userId, {
@@ -111,7 +119,7 @@ export const updateUserProfile = mutation({
 // Regenerate API key
 export const regenerateApiKey = mutation({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
+  handler: async (ctx: MutationCtx, args: { userId: Id<'users'> }) => {
     const newApiKey = `pk_live_${nanoid(32)}`;
     
     await ctx.db.patch(args.userId, {
@@ -133,12 +141,12 @@ export const regenerateApiKey = mutation({
 
 // Get user statistics
 export const getUserStats = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
+  args: { ownerId: v.string() },
+  handler: async (ctx: QueryCtx, args: { ownerId: string }) => {
     // Get all user's tours
     const tours = await ctx.db
       .query("tours")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_owner", (q) => q.eq("ownerId", args.ownerId))
       .collect();
 
     const activeTours = tours.filter((t) => t.isActive).length;
@@ -188,7 +196,7 @@ export const getUserActivity = query({
     userId: v.id("users"),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: QueryCtx, args: { userId: Id<'users'>; limit?: number }) => {
     const limit = args.limit || 50;
     
     const activities = await ctx.db

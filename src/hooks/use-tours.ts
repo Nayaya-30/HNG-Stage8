@@ -1,13 +1,13 @@
 import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/lib/convex/_generated/api';
-import { Id } from '@/lib/convex/_generated/dataModel';
+import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
 
 export const useTours = (ownerId: string) => {
-  const tours = useQuery(api.functions.tours.listTours, { ownerId });
+  const tours = useQuery(api.tours.listTours, { ownerId });
   
-  const createTour = useMutation(api.functions.tours.createTour);
-  const updateTour = useMutation(api.functions.tours.updateTour);
-  const deleteTour = useMutation(api.functions.tours.deleteTour);
+  const createTour = useMutation(api.tours.createTour);
+  const updateTour = useMutation(api.tours.updateTour);
+  const deleteTour = useMutation(api.tours.deleteTour);
   
   return {
     tours,
@@ -19,7 +19,7 @@ export const useTours = (ownerId: string) => {
 
 export const useTour = (tourId: Id<'tours'> | null) => {
   const tour = useQuery(
-    tourId ? api.functions.tours.getTour : null,
+    tourId ? api.tours.getTour : null,
     tourId ? { id: tourId } : undefined
   );
   

@@ -17,7 +17,7 @@ interface TourStep {
 interface TourData {
   id: string;
   name: string;
-  type: 'ecommerce' | 'saas' | 'custom';
+  type: 'ecommerce' | 'saas' | 'custom' | 'educational';
   steps: TourStep[];
 }
 
@@ -30,7 +30,7 @@ export function TourManager() {
 
   const tour = useQuery(
     tourId ? api.tours.getTour : null,
-    tourId ? { id: tourId as Id<'tours'> } : undefined
+    tourId ? { id: tourId as Id<'tours'> } : 'skip'
   ) as Doc<'tours'> | undefined | null;
 
   useEffect(() => {

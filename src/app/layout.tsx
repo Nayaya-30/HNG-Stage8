@@ -1,38 +1,46 @@
-// src/app/layout.tsx
-import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+
+import type { Metadata } from "next";
 import "./globals.css";
-// import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
+import { ConvexClientProvider } from "@/lib/convex/client";
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+	subsets: ["latin"],
+	variable: "--font-inter",
 });
 
 const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+	subsets: ["latin"],
+	variable: "--font-jakarta",
 });
 
+
+
 export const metadata: Metadata = {
-  title: "OnboardX",
-  description: "Bright, guided onboarding tours for modern web apps.",
+	title: "OnboardX",
+	description: "Bright, guided onboarding tours for modern web apps.",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  return (
-    <ClerkProvider>
-      <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
-        <body className="min-h-screen bg-brand-navy text-slate-100 font-[var(--font-inter)]">
-          <Navbar />
-          <main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col px-4 py-10">
-            {children}
-          </main>
-        </body>
-      </html>
-    </ClerkProvider>
+	return (
+		<html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
+			<ClerkProvider>
+				<ConvexClientProvider>
+					<body className="min-h-screen bg-brand-navy text-slate-100 font-[var(--font-inter)]">
+						<Navbar />
+						<main className="mx-auto flex min-h-[calc(100vh-64px)] max-w-6xl flex-col px-4 py-10">
+							{children}
+						</main>
+					</body>
+				</ConvexClientProvider>
+			</ClerkProvider>
+		</html>
+	);
+}

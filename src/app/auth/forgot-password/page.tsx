@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+// Assuming these are styled by Tailwind/shadcn and will inherit the dark theme context
+import { Button } from '@/components/ui/button'; 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,24 +31,35 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
-      <Card className="w-full max-w-md">
+    // 1. Dark Background and subtle glow
+    <div className="min-h-screen flex items-center justify-center bg-[#040816] relative p-4">
+        {/* Glow element for premium feel, matching the Home page hero */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.1),_transparent_70%)]" />
+
+      {/* 2. Card Styled for Dark Theme */}
+      <Card 
+        className="w-full max-w-md border border-slate-800 bg-slate-900/80 text-slate-50 rounded-3xl shadow-[0_24px_80px_rgba(15,23,42,0.9)] relative z-10 p-4"
+      >
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-semibold text-center text-slate-50">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="text-center text-slate-400 text-sm">
             Enter your email to receive a reset link
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Message/Notification Style (Using Sky/Blue for informational message) */}
             {message && (
-              <div className="p-3 text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg">
+              <div className="p-3 text-sm text-sky-200 bg-sky-950/40 border border-sky-400/40 rounded-lg">
                 {message}
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-slate-200">Email</Label>
+              {/* Input Style: Dark background, amber focus */}
               <Input
                 id="email"
                 type="email"
@@ -56,16 +68,26 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
+                className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            {/* Primary Button Style (Amber) */}
+            <Button 
+                type="submit" 
+                className="w-full bg-amber-300 text-slate-950 font-semibold hover:bg-amber-200 transition rounded-full" 
+                disabled={isLoading}
+            >
               {isLoading ? 'Sending...' : 'Send Reset Link'}
             </Button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-slate-400">
               Remembered your password?{' '}
-              <Link href="/auth/signin" className="font-medium text-indigo-600 hover:text-indigo-700">
+              {/* Link Style (Sky/Blue accent) */}
+              <Link 
+                href="/auth/signin" 
+                className="font-medium text-sky-400 hover:text-sky-300 transition"
+              >
                 Sign in
               </Link>
             </p>
@@ -75,4 +97,3 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
-

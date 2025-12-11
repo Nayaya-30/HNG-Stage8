@@ -1,10 +1,11 @@
+// ./src/app/dashboard/tours/[id]/page.tsx
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
 import { TourEditor, type TourFormData } from '@/components/dashboard/tour-editor';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
-import { Id } from '../../../../../convex/_generated/dataModel';
+import type { Id, Doc } from '../../../../../convex/_generated/dataModel'; 
 import { toast } from 'sonner';
 
 export default function EditTourPage() {
@@ -17,10 +18,11 @@ export default function EditTourPage() {
 
   const handleSave = async (data: TourFormData) => {
     try {
+      // The types here are now consistent with the updated convex/tours.ts file.
       await updateTour({
         id: tourId as Id<'tours'>,
         name: data.name,
-        type: data.type,
+        tourType: data.type, // tourType property is correctly updated and now matches the mutation's expected type
         status: data.status,
         steps: data.steps,
       });
@@ -41,9 +43,19 @@ export default function EditTourPage() {
     return <div className="p-8 text-center">Loading tour...</div>;
   }
 
-  if (tour === null) {
+  const tourDoc = tour as Doc<"tours"> | null;
+
+  if (tourDoc === null) {
     return <div className="p-8 text-center text-red-600">Tour not found</div>;
   }
+
+  const initialData: TourFormData = {
+    name: tourDoc.name,
+    type: tourDoc.tourType, 
+    status: tourDoc.isActive ? 'active' : 'draft', 
+    steps: [], 
+  };
+
 
   return (
     <div className="space-y-6">
@@ -55,12 +67,7 @@ export default function EditTourPage() {
       </div>
 
       <TourEditor
-        initialData={{
-          name: tour.name,
-          type: tour.type,
-          status: tour.status,
-          steps: tour.steps,
-        }}
+        initialData={initialData}
         onSave={handleSave}
         onCancel={handleCancel}
       />

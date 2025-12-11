@@ -44,7 +44,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        <h1 className="text-3xl font-bold text-brand-gold drop-shadow">Settings</h1>
         <p className="mt-1 text-gray-500">
           Manage your account and widget preferences
         </p>
@@ -99,7 +99,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.notifications.tourCompleted}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   notifications: { ...settings.notifications, tourCompleted: checked },
@@ -115,7 +115,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.notifications.tourAbandoned}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   notifications: { ...settings.notifications, tourAbandoned: checked },
@@ -131,7 +131,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.notifications.weeklyReport}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   notifications: { ...settings.notifications, weeklyReport: checked },
@@ -147,7 +147,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.notifications.monthlyReport}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   notifications: { ...settings.notifications, monthlyReport: checked },
@@ -201,7 +201,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.widget.showAvatar}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   widget: { ...settings.widget, showAvatar: checked },
@@ -217,7 +217,7 @@ export default function SettingsPage() {
             </div>
             <Switch
               checked={settings.widget.autoStart}
-              onCheckedChange={(checked) =>
+              onCheckedChange={(checked: boolean) =>
                 setSettings({
                   ...settings,
                   widget: { ...settings.widget, autoStart: checked },

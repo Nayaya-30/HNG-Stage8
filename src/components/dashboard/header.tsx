@@ -10,40 +10,42 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ setSidebarOpen }: DashboardHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 bg-white shadow">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center">
+    <header className="sticky top-0 z-20 backdrop-blur-lg bg-brand-navy/40 border-b border-brand-royal/40 shadow-lg">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 text-white">
+        
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-4">
+          {/* MOBILE MENU BUTTON */}
           <button
             type="button"
-            className="rounded-md p-2 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
             onClick={() => setSidebarOpen(true)}
+            className="rounded-md p-2 text-white/70 hover:text-white lg:hidden"
           >
-            <span className="sr-only">Open sidebar</span>
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            <Bars3Icon className="h-6 w-6" />
           </button>
-          <div className="ml-4 lg:ml-0">
-            <Badge variant="secondary" className="font-medium">
-              Beta
-            </Badge>
-          </div>
+
+          {/* BETA BADGE */}
+          <Badge className="bg-brand-blue/20 border border-brand-blue/50 text-brand-blue">
+            Beta
+          </Badge>
         </div>
 
-        <div className="flex items-center">
-          <button
-            type="button"
-            className="relative rounded-full bg-white p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <span className="sr-only">View notifications</span>
-            <BellIcon className="h-6 w-6" aria-hidden="true" />
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+
+          {/* NOTIFICATIONS */}
+          <button className="relative rounded-full p-2 text-white/70 hover:text-white hover:bg-white/10 transition-all">
+            <BellIcon className="h-6 w-6" />
           </button>
 
-          <div className="ml-3 relative">
-            <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                <UserCircleIcon className="h-6 w-6 text-indigo-600" />
-              </div>
-              <span className="hidden md:block text-sm font-medium text-gray-700">Admin User</span>
+          {/* USER AVATAR */}
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 flex items-center justify-center rounded-full bg-brand-blue/20 border border-brand-blue/40">
+              <UserCircleIcon className="h-6 w-6 text-brand-blue" />
             </div>
+            <span className="hidden md:block text-sm font-medium text-white/80">
+              Admin User
+            </span>
           </div>
         </div>
       </div>

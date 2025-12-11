@@ -1,356 +1,185 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { DashboardHeader } from "@/components/dashboard/header";
+import { useAuth } from "@/hooks/use-auth";
+import { ConvexClientProvider } from "@/lib/convex/client";
+import { cn } from "@/lib/utils";
 
-export default function DocsPage() {
-  const [tourId, setTourId] = useState("tour_abc123");
-  const [copied, setCopied] = useState<string | null>(null);
+type OnboardXStep = {
+  id: string;
+  title: string;
+  body: string;
+};
 
-  const copy = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(key);
-    setTimeout(() => setCopied(null), 2000);
-  };
+type OnboardXType = {
+  init: (options: {
+    steps: OnboardXStep[];
+    onEvent?: (e: unknown) => void;
+  }) => void;
+};
 
-  const scriptCode = `<!-- OnboardX Tour Widget -->
-<script src="https://cdn.yourdomain.com/tour-widget.js"></script>
-<script>
-  TourWidget.init({
-    tourId: '${tourId}',
-    apiKey: 'your_api_key_here'
-  });
-</script>`;
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
 
-  const npmInstall = `npm install @your-org/tour-widget`;
+  /* -------------------------------
+      ONBOARDX WIDGET (DOCS 5-STEP TOUR)
+  -------------------------------- */
+  useEffect(() => {
+    // Only run in the browser and only when the user is logged in
+    if (typeof window === "undefined") return;
+    if (!isAuthenticated) return;
 
-  const reactCode = `import { TourWidget } from '@your-org/tour-widget';
-import '@your-org/tour-widget/dist/style.css';
+    const w = window as Window &
+      typeof globalThis & {
+        OnboardX?: OnboardXType;
+        process?: { env?: { NODE_ENV: string } };
+      };
 
-function App() {
-  return (
-    <div>
-      <TourWidget 
-        tourId="${tourId}"
-        apiKey="your_api_key_here"
-      />
-      {/* Your app content */}
-    </div>
-  );
-}`;
-
-  const vueCode = `<template>
-  <div>
-    <TourWidget 
-      :tour-id="tourId"
-      :api-key="apiKey"
-    />
-    <!-- Your app content -->
-  </div>
-</template>
-
-<script>
-import { TourWidget } from '@your-org/tour-widget';
-import '@your-org/tour-widget/dist/style.css';
-
-export default {
-  components: { TourWidget },
-  data() {
-    return {
-      tourId: '${tourId}',
-      apiKey: 'your_api_key_here'
+    // 1️⃣ Shim `process` so the widget bundle doesn't crash in the browser
+    if (!w.process) {
+      w.process = {} as any;
     }
+    if (!w.process.env) {
+      w.process.env = { NODE_ENV: "production" } as any;
+    }
+
+    // 2️⃣ Avoid loading the script more than once
+    const existingScript = document.querySelector(
+      "script[data-onboardx-widget]"
+    );
+    if (existingScript) {
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src =
+      "https://onboardx-widget.vercel.app/onboardx-widget.iife.js";
+    script.async = true;
+    script.dataset.onboardxWidget = "true";
+
+    script.onload = () => {
+      if (!w.OnboardX) {
+        console.error("OnboardX global not found after script load");
+        return;
+      }
+
+      // 3️⃣ The EXACT same 5-step copy you showed in your screenshots
+      const docsSteps: OnboardXStep[] = [
+        {
+          id: "workspace-welcome",
+          title: "Welcome to your workspace",
+          body:
+            "This short 5-step tour will show you where everything lives so you can feel at home in seconds.",
+        },
+        {
+          id: "navigation-main",
+          title: "Navigation & main sections",
+          body:
+            "Use the left sidebar to move between your dashboard, tours, analytics and settings. Think of it as your product’s main map.",
+        },
+        {
+          id: "create-tours",
+          title: "Create tours and see results",
+          body:
+            "The quick action cards help you add new tours, view performance and copy your embed code. Gold buttons are your primary actions.",
+        },
+        {
+          id: "search-shortcuts",
+          title: "Search, shortcuts & recent activity",
+          body:
+            "Use the search bar to jump straight to tours, products or customers, and use the cards below to review what’s been happening recently.",
+        },
+        {
+          id: "ready-to-explore",
+          title: "You’re ready to explore",
+          body:
+            "That’s it for now. You can re-open this tour anytime from the glowing bubble in the corner if you need a quick refresher.",
+        },
+      ];
+
+      w.OnboardX.init({
+        steps: docsSteps,
+        onEvent: (e: unknown) => {
+          console.log("[OnboardX event]", e);
+        },
+      });
+    };
+
+    document.body.appendChild(script);
+
+    // 4️⃣ Cleanup (not critical for your demo but nice to have)
+    return () => {
+      script.remove();
+      const container = document.getElementById("onboardx-root");
+      if (container) container.remove();
+    };
+  }, [isAuthenticated]);
+
+  /* -------------------------------
+              UI LAYOUT
+  -------------------------------- */
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center text-white">
+        Loading...
+      </div>
+    );
   }
-}
-</script>`;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen items-center justify-center text-white">
+        Redirecting to login...
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-[#040816] text-slate-50 px-6 md:px-10 lg:px-16 py-12">
-      <div className="max-w-5xl mx-auto space-y-10">
-        {/* HEADER */}
-        <section className="space-y-2">
-          <p className="text-xs font-semibold tracking-[0.25em] text-slate-400 uppercase">
-            Documentation
-          </p>
-          <h1 className="text-3xl md:text-4xl font-semibold">
-            OnboardX Installation Guide
-          </h1>
-          <p className="text-sm text-slate-400 max-w-xl">
-            Learn how to embed the OnboardX tour widget into your product — using a
-            simple script tag or framework components.
-          </p>
-        </section>
+    <ConvexClientProvider>
+      <div
+        className={cn(
+          "flex min-h-screen bg-brand-navy text-white",
+          sidebarOpen && "overflow-hidden"
+        )}
+      >
+        {/* SIDEBAR */}
+        <DashboardSidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
-        {/* QUICK START */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
-          <div>
-            <h2 className="text-lg font-semibold">Quick Start</h2>
-            <p className="text-sm text-slate-400">
-              The fastest way to add tours to your website.
-            </p>
-          </div>
+        {/* MOBILE OVERLAY */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-200">
-              Your Tour ID
-            </label>
-            <input
-              value={tourId}
-              onChange={(e) => setTourId(e.target.value)}
-              placeholder="Enter your tour ID"
-              className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
-            />
-            <p className="text-xs text-slate-500">
-              Find your tour ID in the OnboardX dashboard under each tour&apos;s settings.
-            </p>
-          </div>
+        {/* MAIN CONTENT AREA */}
+        <div className="flex flex-1 flex-col">
+          {/* HEADER */}
+          <DashboardHeader
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
 
-          <div className="relative">
-            <pre className="bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto text-sm border border-slate-800">
-              <code>{scriptCode}</code>
-            </pre>
-            <button
-              onClick={() => copy(scriptCode, "script")}
-              className="absolute top-3 right-3 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
-            >
-              {copied === "script" ? "Copied!" : "Copy"}
-            </button>
-          </div>
-
-          <div className="bg-sky-950/60 border border-sky-500/40 rounded-lg p-4 flex gap-3">
-            <span className="text-sky-400 text-lg">💡</span>
-            <div className="text-sm">
-              <p className="font-medium text-sky-100">Pro Tip</p>
-              <p className="text-sky-200/80">
-                Place this script just before the closing &lt;/body&gt; tag for the best
-                performance.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* FRAMEWORK INTEGRATION */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold">Framework Integration</h2>
-            <p className="text-sm text-slate-400">
-              Install using your preferred frontend stack.
-            </p>
-          </div>
-
-          {/* React */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-500/15 text-[11px] text-sky-300">
-                  R
-                </span>
-                React
-              </h3>
-            </div>
-
-            <p className="text-xs text-slate-400">
-              1. Install the package
-            </p>
-            <div className="relative">
-              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                <code>{npmInstall}</code>
-              </pre>
-              <button
-                onClick={() => copy(npmInstall, "npm")}
-                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
-              >
-                {copied === "npm" ? "Copied!" : "Copy"}
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-400">
-              2. Import and use the component
-            </p>
-            <div className="relative">
-              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                <code>{reactCode}</code>
-              </pre>
-              <button
-                onClick={() => copy(reactCode, "react")}
-                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
-              >
-                {copied === "react" ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          </div>
-
-          {/* Vue */}
-          <div className="space-y-3 pt-4 border-t border-slate-800">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 text-[11px] text-emerald-300">
-                V
-              </span>
-              Vue
-            </h3>
-
-            <p className="text-xs text-slate-400">
-              Use the same NPM package, then drop this component setup:
-            </p>
-
-            <div className="relative">
-              <pre className="bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-sm border border-slate-800">
-                <code>{vueCode}</code>
-              </pre>
-              <button
-                onClick={() => copy(vueCode, "vue")}
-                className="absolute top-2 right-2 rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 text-[11px] font-medium text-slate-100 hover:bg-slate-800"
-              >
-                {copied === "vue" ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          </div>
-
-          {/* Angular note */}
-          <div className="pt-4 border-t border-slate-800 text-sm text-slate-400">
-            <p className="font-medium text-slate-200 mb-1">Angular</p>
-            <p>
-              Angular support is coming soon. For now, use the plain script tag method
-              in the Quick Start section.
-            </p>
-          </div>
-        </section>
-
-        {/* CONFIG OPTIONS */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold">Configuration Options</h2>
-            <p className="text-sm text-slate-400">
-              Customize how the OnboardX widget behaves.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-300">
-                  <th className="text-left py-3 px-4 font-medium">Option</th>
-                  <th className="text-left py-3 px-4 font-medium">Type</th>
-                  <th className="text-left py-3 px-4 font-medium">Default</th>
-                  <th className="text-left py-3 px-4 font-medium">Description</th>
-                </tr>
-              </thead>
-              <tbody className="text-slate-300">
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">tourId</td>
-                  <td className="py-3 px-4">string</td>
-                  <td className="py-3 px-4 font-mono text-xs">required</td>
-                  <td className="py-3 px-4">Unique identifier for your tour.</td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">apiKey</td>
-                  <td className="py-3 px-4">string</td>
-                  <td className="py-3 px-4 font-mono text-xs">required</td>
-                  <td className="py-3 px-4">Your API key from the dashboard.</td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">autoStart</td>
-                  <td className="py-3 px-4">boolean</td>
-                  <td className="py-3 px-4 font-mono text-xs">false</td>
-                  <td className="py-3 px-4">
-                    Automatically start the tour when the page loads.
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">showAvatar</td>
-                  <td className="py-3 px-4">boolean</td>
-                  <td className="py-3 px-4 font-mono text-xs">true</td>
-                  <td className="py-3 px-4">
-                    Show a small avatar / guide illustration in the widget.
-                  </td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">position</td>
-                  <td className="py-3 px-4">string</td>
-                  <td className="py-3 px-4 font-mono text-xs">
-                    &apos;bottom-right&apos;
-                  </td>
-                  <td className="py-3 px-4">Where the launcher bubble appears.</td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">primaryColor</td>
-                  <td className="py-3 px-4">string</td>
-                  <td className="py-3 px-4 font-mono text-xs">
-                    &apos;#4f46e5&apos;
-                  </td>
-                  <td className="py-3 px-4">Brand color used in the widget UI.</td>
-                </tr>
-                <tr className="border-b border-slate-800">
-                  <td className="py-3 px-4 font-mono text-xs">onComplete</td>
-                  <td className="py-3 px-4">function</td>
-                  <td className="py-3 px-4 font-mono text-xs">null</td>
-                  <td className="py-3 px-4">
-                    Callback fired when a user completes the tour.
-                  </td>
-                </tr>
-                <tr>
-                  <td className="py-3 px-4 font-mono text-xs">onSkip</td>
-                  <td className="py-3 px-4">function</td>
-                  <td className="py-3 px-4 font-mono text-xs">null</td>
-                  <td className="py-3 px-4">
-                    Callback fired when a user skips the tour.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* NEXT STEPS */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4 mb-10">
-          <div>
-            <h2 className="text-lg font-semibold">Next Steps</h2>
-            <p className="text-sm text-slate-400">
-              Where to go after completing your setup.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="border border-slate-800 rounded-lg p-4 hover:border-amber-300/70 transition-colors">
-              <p className="text-lg mb-2">📚</p>
-              <h3 className="font-medium mb-1 text-slate-100">
-                View Documentation
-              </h3>
-              <p className="text-slate-400 mb-3">
-                Explore advanced features, events and API reference.
-              </p>
-              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
-                Read Docs
-              </button>
-            </div>
-
-            <div className="border border-slate-800 rounded-lg p-4 hover:border-sky-400/70 transition-colors">
-              <p className="text-lg mb-2">🧪</p>
-              <h3 className="font-medium mb-1 text-slate-100">
-                Try Demo
-              </h3>
-              <p className="text-slate-400 mb-3">
-                See the widget in action with a live product tour.
-              </p>
-              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
-                View Demo
-              </button>
-            </div>
-
-            <div className="border border-slate-800 rounded-lg p-4 hover:border-emerald-400/70 transition-colors">
-              <p className="text-lg mb-2">🛟</p>
-              <h3 className="font-medium mb-1 text-slate-100">
-                Get Support
-              </h3>
-              <p className="text-slate-400 mb-3">
-                Need help? Reach out to the OnboardX team.
-              </p>
-              <button className="w-full rounded-full border border-slate-700 px-3 py-2 text-[12px] font-medium text-slate-100 hover:bg-slate-800">
-                Contact Us
-              </button>
-            </div>
-          </div>
-        </section>
+          {/* MAIN BODY */}
+          <main
+            className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 
+            bg-gradient-to-br from-brand-navy via-[#0A1128]/80 to-[#0A1128]"
+          >
+            <div className="max-w-7xl mx-auto space-y-8">{children}</div>
+          </main>
+        </div>
       </div>
-    </main>
+    </ConvexClientProvider>
   );
 }

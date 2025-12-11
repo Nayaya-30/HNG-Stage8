@@ -8,10 +8,21 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
 import { useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { ConvexClientProvider } from '@/lib/convex/client';
+
 
 export default function SignInPage() {
+  return (
+    <ConvexClientProvider>
+      <SignInContent />
+    </ConvexClientProvider>
+  );
+}
+
+function SignInContent() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',

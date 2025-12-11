@@ -7,10 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+
 import { useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { ConvexClientProvider } from '@/lib/convex/client';
 
 export default function ForgotPasswordPage() {
+  return (
+    <ConvexClientProvider>
+      <ForgotPasswordContent />
+    </ConvexClientProvider>
+  );
+}
+
+function ForgotPasswordContent() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');

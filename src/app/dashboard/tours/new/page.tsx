@@ -1,3 +1,4 @@
+// ./src/app/dashboard/tours/new/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -6,20 +7,31 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { toast } from 'sonner';
 import { useOwnerId } from '@/hooks/use-user';
+// REQUIRED IMPORT: Id type for casting
+import type { Id } from '../../../../../convex/_generated/dataModel'; 
 
 export default function NewTourPage() {
   const router = useRouter();
   const createTour = useMutation(api.tours.createTour);
-  const ownerId = useOwnerId();
+  
+  // userId holds the string ID
+  const userId = useOwnerId(); 
 
   const handleSave = async (data: TourFormData) => {
+    // Check if userId is available before proceeding
+    if (!userId) {
+      toast.error('User ID not available. Cannot create tour.');
+      return;
+    }
+    
     try {
       await createTour({
         name: data.name,
-        type: data.type,
+        tourType: data.type, 
         status: data.status,
         steps: data.steps,
-        ownerId,
+        // FIX: Cast the string ID to the required Id<'users'> type
+        userId: userId as Id<'users'>, 
       });
 
       toast.success('Tour created successfully!');

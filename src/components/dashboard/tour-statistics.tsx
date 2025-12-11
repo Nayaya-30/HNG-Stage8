@@ -1,3 +1,4 @@
+// ./src/components/dashboard/tour-statistics.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +11,18 @@ import {
 import { useOwnerId } from '@/hooks/use-user';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+// FIX 1: Import Id type for casting
+import type { Id } from '../../../convex/_generated/dataModel'; 
 
 export function TourStatistics() {
-  const ownerId = useOwnerId();
-  const stats = useQuery(api.users.getUserStats, { ownerId });
+  // FIX 2: Rename variable to match the Convex argument name
+  const userId = useOwnerId();
+  
+  // FIX 3: Use 'userId' for the argument and apply the "skip" pattern
+  const stats = useQuery(
+    api.users.getUserStats, 
+    userId ? { userId: userId as Id<'users'> } : "skip"
+  );
 
   if (stats === undefined) {
     return <div className="p-4 text-center">Loading stats...</div>;

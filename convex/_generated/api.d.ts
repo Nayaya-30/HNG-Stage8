@@ -9,8 +9,9 @@
  */
 
 import type * as analytics from "../analytics.js";
-import type * as shema from "../shema.js";
+import type * as auth from "../auth.js";
 import type * as tours from "../tours.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -20,8 +21,9 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
-  shema: typeof shema;
+  auth: typeof auth;
   tours: typeof tours;
+  users: typeof users;
 }>;
 
 /**

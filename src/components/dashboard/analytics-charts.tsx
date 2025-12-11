@@ -1,3 +1,4 @@
+// ./src/components/dashboard/analytics-charts.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,16 +19,31 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { useOwnerId } from '@/hooks/use-user';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import type { Id } from '../../../convex/_generated/dataModel'; 
 
 const COLORS = ['#4f46e5', '#60a5fa', '#34d399', '#fbbf24'];
 
 export function AnalyticsCharts() {
-  const ownerId = useOwnerId();
-  const summary = useQuery(api.analytics.getOwnerAnalyticsSummary, { ownerId });
+  const userId = useOwnerId();
+  
+  // Query 1: (Works with "skip")
+  const summary = useQuery(
+    api.analytics.getOwnerAnalyticsSummary, 
+    userId ? { userId: userId as Id<'users'> } : "skip"
+  );
+  
   const firstTourId = summary?.perTour[0]?.tourId ? String(summary.perTour[0].tourId) : null;
+  
+  // Query 2: Forcing the function reference to be non-null and relying entirely on the
+  // arguments' "skip" value, which is the pattern that worked for the first query.
   const firstTourAnalytics = useQuery(
-    firstTourId ? api.analytics.getTourAnalytics : null,
-    firstTourId ? { tourId: firstTourId } : undefined
+    api.analytics.getTourAnalytics, // Pass non-null function reference
+    
+    // Arguments: If we have a firstTourId (and summary is implicitly defined), 
+    // pass the ID. Otherwise, pass "skip".
+    firstTourId 
+      ? { tourId: firstTourId as Id<'tours'> } 
+      : "skip" 
   );
 
   if (summary === undefined) {
@@ -36,7 +52,7 @@ export function AnalyticsCharts() {
 
   const completionData = summary.completionsByDay;
   const tourPerformance = summary.perTour.map((t) => ({ name: t.name, value: Math.round(t.completionRate) }));
-  const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: s.stepId, completion: Math.round(s.completionRate) }));
+  const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: String(s.stepId), completion: Math.round(s.completionRate) }));
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

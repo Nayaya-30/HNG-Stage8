@@ -1,3 +1,4 @@
+// convex/users.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
@@ -52,7 +53,8 @@ export const upsertUser = mutation({
       userId,
       action: "user_created",
       entityType: "user",
-      entityId: userId,
+      // entityId is optional in new schema, but we can store the userId here.
+      entityId: userId.toString(), 
       timestamp: Date.now(),
     });
 
@@ -108,7 +110,7 @@ export const updateUserProfile = mutation({
       userId,
       action: "profile_updated",
       entityType: "user",
-      entityId: userId,
+      entityId: userId.toString(),
       timestamp: Date.now(),
     });
 
@@ -131,7 +133,7 @@ export const regenerateApiKey = mutation({
       userId: args.userId,
       action: "api_key_regenerated",
       entityType: "user",
-      entityId: args.userId,
+      entityId: args.userId.toString(),
       timestamp: Date.now(),
     });
 
@@ -141,12 +143,13 @@ export const regenerateApiKey = mutation({
 
 // Get user statistics
 export const getUserStats = query({
-  args: { ownerId: v.string() },
-  handler: async (ctx: QueryCtx, args: { ownerId: string }) => {
+  args: { userId: v.id("users") }, // Changed from ownerId: v.string() to userId: v.id("users") for type safety
+  handler: async (ctx: QueryCtx, args: { userId: Id<'users'> }) => {
     // Get all user's tours
     const tours = await ctx.db
       .query("tours")
-      .withIndex("by_owner", (q) => q.eq("ownerId", args.ownerId))
+      // FIX: Used by_userId index as defined in schema.ts
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .collect();
 
     const activeTours = tours.filter((t) => t.isActive).length;
@@ -160,10 +163,11 @@ export const getUserStats = query({
     for (const tour of tours) {
       const sessions = await ctx.db
         .query("sessions")
-        .withIndex("by_tourId", (q) => q.eq("tourId", tour._id))
+        .withIndex("by_tourId_status", (q) => q.eq("tourId", tour._id))
         .collect();
 
       totalSessions += sessions.length;
+      // The status field is now a union of literals, check for 'completed'
       completedSessions += sessions.filter((s) => s.status === "completed").length;
       
       const events = await ctx.db
@@ -171,6 +175,7 @@ export const getUserStats = query({
         .withIndex("by_tourId", (q) => q.eq("tourId", tour._id))
         .collect();
       
+      // eventType field is a union of literals, check for 'step_viewed'
       totalViews += events.filter((e) => e.eventType === "step_viewed").length;
     }
 

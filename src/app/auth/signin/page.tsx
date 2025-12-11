@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+// Assuming these are styled by Tailwind/shadcn and will inherit the dark theme context
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,24 +45,35 @@ export default function SignInPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
-            <Card className="w-full max-w-md">
+        // 1. Dark Background and subtle glow
+        <div className="min-h-screen flex items-center justify-center bg-[#040816] relative p-4">
+            {/* Glow element for premium feel */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(251,191,36,0.1),_transparent_70%)]" />
+            
+            {/* 2. Card Styled for Dark Theme */}
+            <Card 
+                className="w-full max-w-md border border-slate-800 bg-slate-900/80 text-slate-50 rounded-3xl shadow-[0_24px_80px_rgba(15,23,42,0.9)] relative z-10 p-4"
+            >
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-                    <CardDescription className="text-center">
+                    <CardTitle className="text-2xl font-semibold text-center text-slate-50">
+                        Welcome Back
+                    </CardTitle>
+                    <CardDescription className="text-center text-slate-400 text-sm">
                         Sign in to your account to continue
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Error Message Style (Using Red/Amber for errors) */}
                         {error && (
-                            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="p-3 text-sm text-amber-300 bg-red-950/40 border border-red-500/40 rounded-lg">
                                 {error}
                             </div>
                         )}
 
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email" className="text-slate-200">Email</Label>
+                            {/* Input Style: Dark background, amber focus */}
                             <Input
                                 id="email"
                                 type="email"
@@ -70,15 +82,17 @@ export default function SignInPage() {
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 required
                                 disabled={isLoading}
+                                className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
                             />
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className="text-slate-200">Password</Label>
                             <Link
                                 href="/auth/forgot-password"
-                                className="text-xs text-indigo-600 hover:text-indigo-700"
+                                // Link Style (Sky/Blue accent)
+                                className="text-xs font-medium text-sky-400 hover:text-sky-300 transition"
                             >
                                 Forgot password?
                             </Link>
@@ -91,12 +105,15 @@ export default function SignInPage() {
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 required
                                 disabled={isLoading}
+                                // Input Style: Dark background, amber focus
+                                className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
                             />
                         </div>
 
+                        {/* Primary Button Style (Amber) */}
                         <Button
                             type="submit"
-                            className="w-full"
+                            className="w-full bg-amber-300 text-slate-950 font-semibold hover:bg-amber-200 transition rounded-full"
                             disabled={isLoading}
                         >
                             {isLoading ? 'Signing in...' : 'Sign In'}
@@ -104,15 +121,23 @@ export default function SignInPage() {
 
                         <div className="relative my-4">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200"></div>
+                                {/* Separator line: Muted dark color */}
+                                <div className="w-full border-t border-slate-800"></div>
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                                {/* Separator text: Card background, muted text */}
+                                <span className="bg-slate-900/80 px-2 text-slate-500">Or continue with</span>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <Button type="button" variant="outline" disabled={isLoading}>
+                            {/* Social Buttons: Outlined/Ghost style with dark theme */}
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                disabled={isLoading}
+                                className="bg-slate-950 border border-slate-700 text-slate-200 hover:bg-slate-800 transition"
+                            >
                                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                                     <path
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -133,7 +158,12 @@ export default function SignInPage() {
                                 </svg>
                                 Google
                             </Button>
-                            <Button type="button" variant="outline" disabled={isLoading}>
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                disabled={isLoading}
+                                className="bg-slate-950 border border-slate-700 text-slate-200 hover:bg-slate-800 transition"
+                            >
                                 <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                                 </svg>
@@ -141,9 +171,13 @@ export default function SignInPage() {
                             </Button>
                         </div>
 
-                        <p className="text-center text-sm text-gray-600">
+                        <p className="text-center text-sm text-slate-400">
                             Don&apos;t have an account?{' '}
-                            <Link href="/auth/signup" className="font-medium text-indigo-600 hover:text-indigo-700">
+                            {/* Link Style (Sky/Blue accent) */}
+                            <Link 
+                                href="/auth/signup" 
+                                className="font-medium text-sky-400 hover:text-sky-300 transition"
+                            >
                                 Sign up
                             </Link>
                         </p>

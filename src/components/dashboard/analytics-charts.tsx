@@ -19,25 +19,31 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { useOwnerId } from '@/hooks/use-user';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-// FIX 1: Import Id type for casting
 import type { Id } from '../../../convex/_generated/dataModel'; 
 
 const COLORS = ['#4f46e5', '#60a5fa', '#34d399', '#fbbf24'];
 
 export function AnalyticsCharts() {
-  // FIX 2: Rename ownerId to userId
   const userId = useOwnerId();
   
-  // FIX 3: Pass userId instead of ownerId, and cast it to Id<'users'>
+  // Query 1: (Works with "skip")
   const summary = useQuery(
     api.analytics.getOwnerAnalyticsSummary, 
-    userId ? { userId: userId as Id<'users'> } : undefined // Pass arguments only if userId exists
+    userId ? { userId: userId as Id<'users'> } : "skip"
   );
   
   const firstTourId = summary?.perTour[0]?.tourId ? String(summary.perTour[0].tourId) : null;
+  
+  // Query 2: Forcing the function reference to be non-null and relying entirely on the
+  // arguments' "skip" value, which is the pattern that worked for the first query.
   const firstTourAnalytics = useQuery(
-    firstTourId ? api.analytics.getTourAnalytics : null,
-    firstTourId ? { tourId: firstTourId } : undefined
+    api.analytics.getTourAnalytics, // Pass non-null function reference
+    
+    // Arguments: If we have a firstTourId (and summary is implicitly defined), 
+    // pass the ID. Otherwise, pass "skip".
+    firstTourId 
+      ? { tourId: firstTourId as Id<'tours'> } 
+      : "skip" 
   );
 
   if (summary === undefined) {
@@ -46,7 +52,6 @@ export function AnalyticsCharts() {
 
   const completionData = summary.completionsByDay;
   const tourPerformance = summary.perTour.map((t) => ({ name: t.name, value: Math.round(t.completionRate) }));
-  // NOTE: If tourId is an Id<"tours"> in the Convex database, you might need to convert it to string here:
   const stepCompletion = (firstTourAnalytics?.stepCompletionRates || []).map((s) => ({ name: String(s.stepId), completion: Math.round(s.completionRate) }));
 
   return (

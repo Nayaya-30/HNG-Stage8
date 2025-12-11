@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useOwnerId } from '@/hooks/use-user';
 
 interface Tour {
   _id: string;
@@ -24,7 +25,8 @@ interface Tour {
 }
 
 export default function AnalyticsPage() {
-  const tours = useQuery(api.tours.listTours, { ownerId: 'user_123' });
+  const ownerId = useOwnerId();
+  const tours = useQuery(api.tours.listTours, { ownerId });
 
   // Calculate overall stats
   const totalTours = tours?.length || 0;

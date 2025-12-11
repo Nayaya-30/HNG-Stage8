@@ -1,3 +1,4 @@
+
 'use client';
 
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
@@ -5,6 +6,7 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { ConvexClientProvider } from '@/lib/convex/client';
+import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({
   children,
@@ -25,11 +27,17 @@ export default function DashboardLayout({
 
   return (
     <ConvexClientProvider>
-      <div className="flex min-h-screen">
+      <div className={cn('flex min-h-screen', sidebarOpen ? 'overflow-hidden' : '')}>
         <DashboardSidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
         />
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         <div className="flex flex-1 flex-col">
           <DashboardHeader
             sidebarOpen={sidebarOpen}

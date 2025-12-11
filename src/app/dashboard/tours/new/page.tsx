@@ -5,10 +5,12 @@ import { TourEditor, type TourFormData } from '@/components/dashboard/tour-edito
 import { useMutation } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { toast } from 'sonner';
+import { useOwnerId } from '@/hooks/use-user';
 
 export default function NewTourPage() {
   const router = useRouter();
   const createTour = useMutation(api.tours.createTour);
+  const ownerId = useOwnerId();
 
   const handleSave = async (data: TourFormData) => {
     try {
@@ -17,7 +19,7 @@ export default function NewTourPage() {
         type: data.type,
         status: data.status,
         steps: data.steps,
-        ownerId: 'user_123', // TODO: Replace with actual user ID from auth
+        ownerId,
       });
 
       toast.success('Tour created successfully!');

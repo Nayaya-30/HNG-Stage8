@@ -1,25 +1,42 @@
+// ./src/components/dashboard/stats/cards.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useOwnerId } from '@/hooks/use-user';
-import type { Doc } from '../../../../convex/_generated/dataModel';
+import type { Doc, Id } from '../../../../convex/_generated/dataModel';
+
+// Corrected UITour definition (no need to redefine fields that aren't present)
 type UITour = Doc<'tours'> & {
-  status?: 'active' | 'draft';
-  steps?: unknown[];
-  type?: 'ecommerce' | 'saas' | 'custom';
+  // Assuming listTours includes totalSteps and isActive
+  totalSteps: number;
+  isActive: boolean;
 };
 
 export function StatsCards() {
-  const ownerId = useOwnerId();
-  const tours = useQuery(api.tours.listTours, { ownerId });
-  const tourList = tours as UITour[] | undefined;
+  const userId = useOwnerId();
 
-  const totalTours = tourList?.length || 0;
-  const activeTours = tourList?.filter(t => t.status === 'active').length || 0;
-  const draftTours = tourList?.filter(t => t.status === 'draft').length || 0;
-  const totalSteps = tourList?.reduce((acc, tour) => acc + (tour.steps?.length || 0), 0) || 0;
+  const tours = useQuery(
+    api.tours.listTours, 
+    userId ? { userId: userId as Id<'users'> } : "skip"
+  );
+
+  // Map the raw Doc<'tours'> to the expected structure for stats calculation
+  const tourList = tours?.map(tour => ({
+      ...tour,
+      status: tour.isActive ? 'active' : 'draft', 
+      // FIX: Rely ONLY on totalSteps, which is assumed to be present (or 0)
+      stepsCount: tour.totalSteps || 0,
+      type: tour.tourType, // Map Convex field 'tourType' to local field 'type'
+  })) || [];
+
+  const totalTours = tourList.length;
+  const activeTours = tourList.filter(t => t.status === 'active').length;
+  const draftTours = tourList.filter(t => t.status === 'draft').length;
+  
+  // Use the stepsCount property derived above for reduction
+  const totalSteps = tourList.reduce((acc, tour) => acc + tour.stepsCount, 0);
 
   const stats = [
     {

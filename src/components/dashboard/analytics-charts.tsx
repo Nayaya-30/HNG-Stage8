@@ -56,10 +56,10 @@ export function AnalyticsCharts() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Card>
+      <Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Tour Completions</CardTitle>
-          <button className="text-gray-500 hover:text-gray-700">
+          <CardTitle className="text-brand-gold">Tour Completions</CardTitle>
+          <button className="text-white/60 hover:text-white">
             <ArrowsPointingOutIcon className="h-5 w-5" />
           </button>
         </CardHeader>
@@ -85,10 +85,10 @@ export function AnalyticsCharts() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Tour Performance</CardTitle>
-          <button className="text-gray-500 hover:text-gray-700">
+          <CardTitle className="text-brand-gold">Tour Performance</CardTitle>
+          <button className="text-white/60 hover:text-white">
             <ArrowsPointingOutIcon className="h-5 w-5" />
           </button>
         </CardHeader>
@@ -119,10 +119,10 @@ export function AnalyticsCharts() {
         </CardContent>
       </Card>
 
-      <Card className="lg:col-span-2">
+      <Card className="lg:col-span-2 bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Step Completion Rates</CardTitle>
-          <button className="text-gray-500 hover:text-gray-700">
+          <CardTitle className="text-brand-gold">Step Completion Rates</CardTitle>
+          <button className="text-white/60 hover:text-white">
             <ArrowsPointingOutIcon className="h-5 w-5" />
           </button>
         </CardHeader>

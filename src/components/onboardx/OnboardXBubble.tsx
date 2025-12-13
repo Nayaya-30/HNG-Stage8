@@ -55,11 +55,11 @@ export function OnboardXBubble() {
   // just to make sure process exists for the IIFE bundle
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const w = window as any;
-    if (!w.process) {
-      w.process = { env: { NODE_ENV: "production" } };
-    } else if (!w.process.env) {
-      w.process.env = { NODE_ENV: "production" };
+    const w = window as Window & typeof globalThis;
+    if (!(window as any).process) {
+      (window as any).process = { env: { NODE_ENV: "production" } };
+    } else if (!(window as any).process.env) {
+      (window as any).process.env = { NODE_ENV: "production" };
     }
   }, []);
 

@@ -22,14 +22,14 @@ export function RecentActivity() {
   }
 
   return (
-    <Card>
+    <Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle className="text-brand-gold">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {activities.length === 0 ? (
-            <p className="text-sm text-gray-500">No recent activity.</p>
+            <p className="text-sm text-white/60">No recent activity.</p>
           ) : (
             activities.map((activity: Activity) => (
               <div key={activity.id} className="flex items-start space-x-3">
@@ -39,12 +39,12 @@ export function RecentActivity() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm">
+                  <p className="text-sm text-white">
                     <span className="font-medium">{activity.user}</span>{' '}
-                    <span className="text-gray-600">{activity.action}</span>{' '}
+                    <span className="text-white/70">{activity.action}</span>{' '}
                     <span className="font-medium">{activity.target}</span>
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-white/60">
                     {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
                   </p>
                 </div>

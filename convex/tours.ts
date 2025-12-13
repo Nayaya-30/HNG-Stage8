@@ -2,7 +2,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
-import type { Id } from './_generated/dataModel';
+import type { Id, Doc } from './_generated/dataModel';
 
 // Get all tours for a user
 export const listTours = query({
@@ -64,7 +64,13 @@ export const createTour = mutation({
 			name: string;
 			tourType: 'ecommerce' | 'saas' | 'educational' | 'custom';
 			status: 'draft' | 'active';
-			steps: Array<any>; // Using 'any' as the full step object is too large to duplicate here
+            steps: Array<{
+                id: string;
+                title: string;
+                content: string;
+                position: 'top' | 'bottom' | 'left' | 'right';
+                targetElement?: string;
+            }>;
 			userId: Id<'users'>;
 		}
 	) => {
@@ -78,7 +84,7 @@ export const createTour = mutation({
 			isActive: args.status === 'active',
 			isPublished: args.status === 'active',
 
-			// NOTE: Add placeholders for other required fields from schema.ts:
+            // NOTE: Add placeholders for other required fields from schema.ts:
 			description: "Default description",
 			targetUrl: "https://example.com",
 			theme: "light",
@@ -92,7 +98,7 @@ export const createTour = mutation({
 			triggerDelay: 0,
 			embedCode: "",
 			totalSteps: args.steps.length,
-			estimatedDuration: args.steps.length * 15, // Estimate 15s per step
+            estimatedDuration: args.steps.length * 15,
 
 			createdAt: now,
 			updatedAt: now,
@@ -138,19 +144,25 @@ export const updateTour = mutation({
 		args: {
 			id: Id<'tours'>;
 			name: string;
-			// FIX: Update handler type to include 'educational'
-			tourType?: 'ecommerce' | 'saas' | 'educational' | 'custom';
-			status: 'draft' | 'active';
-			steps?: Array<any>;
+            // FIX: Update handler type to include 'educational'
+            tourType?: 'ecommerce' | 'saas' | 'educational' | 'custom';
+            status: 'draft' | 'active';
+            steps?: Array<{
+                id: string;
+                title: string;
+                content: string;
+                position: 'top' | 'bottom' | 'left' | 'right';
+                targetElement?: string;
+            }>;
 		}
 	) => {
 		const now = Date.now();
-		const updates: any = {
-			name: args.name,
-			updatedAt: now,
-			isActive: args.status === 'active',
-			isPublished: args.status === 'active',
-		}
+        const updates: Partial<Doc<'tours'>> = {
+            name: args.name,
+            updatedAt: now,
+            isActive: args.status === 'active',
+            isPublished: args.status === 'active',
+        }
 
 		if (args.tourType) {
 			updates.tourType = args.tourType;

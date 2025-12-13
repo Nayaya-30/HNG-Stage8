@@ -64,11 +64,11 @@ export function TourList() {
 	}));
 
 	return (
-		<Card>
+		<Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
 			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle>Your Tours</CardTitle>
+				<CardTitle className="text-brand-gold">Your Tours</CardTitle>
 				<Link href="/dashboard/tours/new" passHref>
-					<Button>
+					<Button className="bg-brand-blue/60 hover:bg-brand-blue text-white">
 						<div className="flex items-center">
 							<PlusIcon className="mr-2 h-4 w-4" />
 							Create New Tour
@@ -79,24 +79,22 @@ export function TourList() {
 			<CardContent>
 				<div className="space-y-4">
 					{tours.length === 0 ? (
-						<p className="text-center text-gray-500 py-4">No tours found. Create one to get started.</p>
+						<p className="text-center text-white/60 py-4">No tours found. Create one to get started.</p>
 					) : (
 						tours.map((tour: UITour) => (
 							<div
 								key={tour._id}
-								className="flex items-center justify-between rounded-lg border p-4 hover:bg-gray-50"
+								className="flex items-center justify-between rounded-lg border border-brand-royal/20 p-4 hover:bg-brand-royal/20"
 							>
 								<div className="flex items-center space-x-4">
-									<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-										<PlayIcon className="h-5 w-5 text-indigo-600" />
+									<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/20">
+										<PlayIcon className="h-5 w-5 text-brand-blue" />
 									</div>
 									<div>
-										<h3 className="font-medium">{tour.name}</h3>
-										<div className="flex items-center space-x-2 text-sm text-gray-500">
-											{/* FIX 5: Use stepsCount instead of tour.steps?.length */}
+										<h3 className="font-medium text-white">{tour.name}</h3>
+										<div className="flex items-center space-x-2 text-sm text-white/60">
 											<span>{tour.stepsCount} steps</span>
 											<span>•</span>
-											{/* FIX 6: Use _creationTime since createdAt is not on the base Doc */}
 											<span>{format(tour._creationTime, 'MMM d, yyyy')}</span>
 											<span>•</span>
 											<Badge
@@ -112,20 +110,21 @@ export function TourList() {
 										</div>
 									</div>
 								</div>
-
+								
 								<div className="flex items-center space-x-2">
 									<Link href={`/dashboard/tours/${tour._id}`}>
-										<Button variant="ghost" size="icon">
+										<Button variant="ghost" size="icon" className="text-white">
 											<PencilIcon className="h-4 w-4" />
 										</Button>
 									</Link>
-									<Button variant="ghost" size="icon">
+									<Button variant="ghost" size="icon" className="text-white">
 										<DocumentDuplicateIcon className="h-4 w-4" />
 									</Button>
 									<Button
 										variant="ghost"
 										size="icon"
 										onClick={() => deleteTour(tour._id)}
+										className="text-white"
 									>
 										<TrashIcon className="h-4 w-4" />
 									</Button>

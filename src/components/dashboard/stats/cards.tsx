@@ -7,13 +7,6 @@ import { api } from '../../../../convex/_generated/api';
 import { useOwnerId } from '@/hooks/use-user';
 import type { Doc, Id } from '../../../../convex/_generated/dataModel';
 
-// Corrected UITour definition (no need to redefine fields that aren't present)
-type UITour = Doc<'tours'> & {
-  // Assuming listTours includes totalSteps and isActive
-  totalSteps: number;
-  isActive: boolean;
-};
-
 export function StatsCards() {
   const userId = useOwnerId();
 
@@ -84,14 +77,14 @@ export function StatsCards() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <Card key={index}>
+        <Card key={index} className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+            <CardTitle className="text-sm font-medium text-brand-gold">{stat.title}</CardTitle>
             {stat.icon}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className="text-2xl font-bold text-white">{stat.value}</div>
+            <p className="text-xs text-white/60 mt-1">
               {stat.description}
             </p>
           </CardContent>

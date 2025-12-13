@@ -36,18 +36,15 @@ export default function DashboardLayout({
     if (typeof window === "undefined") return;
     if (!isAuthenticated) return;
 
-    const w = window as Window &
-      typeof globalThis & {
-        OnboardX?: OnboardXType;
-        process?: { env?: { NODE_ENV: string } };
-      };
+    const w = window as Window & typeof globalThis & {
+      OnboardX?: OnboardXType;
+    };
 
     // 1️⃣ Shim `process` so the widget bundle doesn't crash in the browser
-    if (!w.process) {
-      w.process = {} as any;
-    }
-    if (!w.process.env) {
-      w.process.env = { NODE_ENV: "production" } as any;
+    if (!(window as any).process) {
+      (window as any).process = { env: { NODE_ENV: "production" } };
+    } else if (!(window as any).process.env) {
+      (window as any).process.env = { NODE_ENV: "production" };
     }
 
     // 2️⃣ Avoid loading the script more than once
@@ -82,7 +79,7 @@ export default function DashboardLayout({
           id: "navigation-main",
           title: "Navigation & main sections",
           body:
-            "Use the left sidebar to move between your dashboard, tours, analytics and settings. Think of it as your product’s main map.",
+            "Use the left sidebar to move between your dashboard, tours, analytics and settings. Think of it as your product&apos;s main map.",
         },
         {
           id: "create-tours",
@@ -94,13 +91,13 @@ export default function DashboardLayout({
           id: "search-shortcuts",
           title: "Search, shortcuts & recent activity",
           body:
-            "Use the search bar to jump straight to tours, products or customers, and use the cards below to review what’s been happening recently.",
+            "Use the search bar to jump straight to tours, products or customers, and use the cards below to review what&apos;s been happening recently.",
         },
         {
           id: "ready-to-explore",
-          title: "You’re ready to explore",
+          title: "You&apos;re ready to explore",
           body:
-            "That’s it for now. You can re-open this tour anytime from the glowing bubble in the corner if you need a quick refresher.",
+            "That&apos;s it for now. You can re-open this tour anytime from the glowing bubble in the corner if you need a quick refresher.",
         },
       ];
 
@@ -133,13 +130,13 @@ export default function DashboardLayout({
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="flex h-screen items-center justify-center text-white">
-        Redirecting to login...
-      </div>
-    );
-  }
+  {/* if (!isAuthenticated) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center text-white">
+  //       Redirecting to login...
+  //     </div>
+  //   );
+  */}
 
   return (
     <ConvexClientProvider>

@@ -75,13 +75,23 @@ export const startSession = mutation({
 
 // Record a step event (viewed, completed, skipped, etc.)
 export const recordStepEvent = mutation({
-	args: {
-		sessionId: v.id('sessions'),
-		stepId: v.string(),
-		stepOrder: v.number(),
-		eventType: v.string(), // Rely on schema validation for the union type
-		timeOnStep: v.optional(v.number()),
-	},
+    args: {
+        sessionId: v.id('sessions'),
+        stepId: v.string(),
+        stepOrder: v.number(),
+        eventType: v.union(
+            v.literal('step_viewed'),
+            v.literal('step_started'),
+            v.literal('step_completed'),
+            v.literal('step_skipped'),
+            v.literal('step_back'),
+            v.literal('interaction_completed'),
+            v.literal('interaction_failed'),
+            v.literal('element_not_found'),
+            v.literal('timeout')
+        ),
+        timeOnStep: v.optional(v.number()),
+    },
 	handler: async (ctx: MutationCtx, args) => {
 		const session = await ctx.db.get(args.sessionId);
 		if (!session) {
@@ -96,7 +106,7 @@ export const recordStepEvent = mutation({
 			sessionId: session.sessionId, // Use the string sessionId from session record
 			stepId: args.stepId,
 			stepOrder: args.stepOrder,
-			eventType: args.eventType as any, // Cast to any because the schema union type is complex
+			eventType: args.eventType, // Cast to any because the schema union type is complex
 			timestamp: now,
 			timeOnStep: args.timeOnStep,
 		});

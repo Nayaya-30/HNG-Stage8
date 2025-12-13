@@ -101,30 +101,31 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
-			<Card>
+			<Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
 				<CardHeader>
-					<CardTitle>Tour Details</CardTitle>
+					<CardTitle className="text-brand-gold">Tour Details</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="name">Tour Name *</Label>
+						<Label htmlFor="name" className="text-slate-200">Tour Name *</Label>
 						<Input
 							id="name"
 							value={formData.name}
 							onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 							placeholder="Enter tour name"
+							className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
 						/>
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="type">Tour Type *</Label>
+						<Label htmlFor="type" className="text-slate-200">Tour Type *</Label>
 						<Select
 							value={formData.type}
 							onValueChange={(value: 'ecommerce' | 'saas' | 'educational' | 'custom') =>
 								setFormData({ ...formData, type: value })
 							}
 						>
-							<SelectTrigger>
+							<SelectTrigger className="bg-slate-950 border border-slate-800 text-slate-100">
 								<SelectValue placeholder="Select tour type" />
 							</SelectTrigger>
 							<SelectContent>
@@ -137,14 +138,14 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="status">Status</Label>
+						<Label htmlFor="status" className="text-slate-200">Status</Label>
 						<Select
 							value={formData.status}
 							onValueChange={(value: 'draft' | 'active') =>
 								setFormData({ ...formData, status: value })
 							}
 						>
-							<SelectTrigger>
+							<SelectTrigger className="bg-slate-950 border border-slate-800 text-slate-100">
 								<SelectValue placeholder="Select status" />
 							</SelectTrigger>
 							<SelectContent>
@@ -156,17 +157,17 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 				</CardContent>
 			</Card>
 
-			<Card>
+			<Card className="bg-brand-royal/30 border border-brand-royal/20 backdrop-blur-lg shadow-lg">
 				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle>Tour Steps</CardTitle>
-					<Button type="button" variant="outline" onClick={addStep}>
+					<CardTitle className="text-brand-gold">Tour Steps</CardTitle>
+					<Button type="button" variant="outline" onClick={addStep} className="bg-slate-950 border border-slate-700 text-white hover:bg-slate-800">
 						<PlusIcon className="mr-2 h-4 w-4" />
 						Add Step
 					</Button>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					{formData.steps.map((step, index) => (
-						<Card key={step.id}>
+						<Card key={step.id} className="bg-brand-royal/20 border border-brand-royal/20">
 							<CardContent className="pt-6">
 								<div className="flex items-center justify-between mb-4">
 									<Badge variant="secondary">Step {index + 1}</Badge>
@@ -203,36 +204,38 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 
 								<div className="space-y-4">
 									<div className="space-y-2">
-										<Label htmlFor={`step-title-${index}`}>Title *</Label>
+										<Label htmlFor={`step-title-${index}`} className="text-slate-200">Title *</Label>
 										<Input
 											id={`step-title-${index}`}
 											value={step.title}
 											onChange={(e) => updateStep(index, 'title', e.target.value)}
 											placeholder="Enter step title"
+											className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
 										/>
 									</div>
 
 									<div className="space-y-2">
-										<Label htmlFor={`step-content-${index}`}>Content *</Label>
+										<Label htmlFor={`step-content-${index}`} className="text-slate-200">Content *</Label>
 										<Textarea
 											id={`step-content-${index}`}
 											value={step.content}
 											onChange={(e) => updateStep(index, 'content', e.target.value)}
 											placeholder="Enter step content/description"
 											rows={3}
+											className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
 										/>
 									</div>
 
 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div className="space-y-2">
-											<Label htmlFor={`step-position-${index}`}>Position</Label>
+											<Label htmlFor={`step-position-${index}`} className="text-slate-200">Position</Label>
 											<Select
 												value={step.position}
 												onValueChange={(value: 'top' | 'bottom' | 'left' | 'right') =>
 													updateStep(index, 'position', value)
 												}
 											>
-												<SelectTrigger>
+												<SelectTrigger className="bg-slate-950 border border-slate-800 text-slate-100">
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent>
@@ -245,12 +248,13 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 										</div>
 
 										<div className="space-y-2">
-											<Label htmlFor={`step-target-${index}`}>Target Element (Optional)</Label>
+											<Label htmlFor={`step-target-${index}`} className="text-slate-200">Target Element (Optional)</Label>
 											<Input
 												id={`step-target-${index}`}
 												value={step.targetElement || ''}
 												onChange={(e) => updateStep(index, 'targetElement', e.target.value)}
 												placeholder="CSS selector (e.g., #hero-button)"
+												className="bg-slate-950 border border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-amber-300 focus:ring-1 focus:ring-amber-300"
 											/>
 										</div>
 									</div>
@@ -262,10 +266,10 @@ export function TourEditor({ initialData, onSave, onCancel }: TourEditorProps) {
 			</Card>
 
 			<div className="flex justify-end space-x-4">
-				<Button type="button" variant="outline" onClick={onCancel}>
+				<Button type="button" variant="outline" onClick={onCancel} className="bg-slate-950 border border-slate-700 text-white hover:bg-slate-800">
 					Cancel
 				</Button>
-				<Button type="submit">Save Tour</Button>
+				<Button type="submit" className="bg-amber-300 text-slate-950 hover:bg-amber-200">Save Tour</Button>
 			</div>
 		</form>
 	);
